@@ -1,0 +1,1973 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analyse Accident du Travail Grave (ATG) | Nexum Advisory</title>
+<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14px}
+.header{background:#4A1B0C;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.header .sub{font-size:10px;color:#F0997B;letter-spacing:.15em;text-transform:uppercase;margin-bottom:2px}
+.header .title{font-size:16px;font-weight:700;color:#fff}
+.header .ref{font-size:11px;color:#F0997B;text-align:right;line-height:1.5}
+.obar{background:#D85A30;height:3px}
+.prog-bar{background:#3A1209;padding:12px 20px}
+.prog-steps{display:flex;gap:0;counter-reset:step}
+.prog-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;position:relative}
+.prog-step::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:#5A2A1A;z-index:0}
+.prog-step:last-child::after{display:none}
+.prog-step .ps-num{width:28px;height:28px;border-radius:50%;background:#5A2A1A;color:#F0997B;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;transition:all .2s}
+.prog-step.active .ps-num{background:#D85A30;color:#fff}
+.prog-step.done .ps-num{background:#16a34a;color:#fff}
+.prog-step .ps-lbl{font-size:9px;color:#F0997B;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;text-align:center}
+.prog-step.active .ps-lbl{color:#fff}
+.prog-step.done .ps-lbl{color:#86efac}
+.main{max-width:1020px;margin:0 auto;padding:24px 20px 80px}
+.panel{display:none}.panel.active{display:block}
+.card{background:#fff;border:1px solid #E0D8D4;border-radius:9px;padding:20px 24px;margin-bottom:16px}
+.card-title{font-size:12px;font-weight:700;color:#D85A30;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #D85A30}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.field{margin-bottom:0}
+.field label{font-size:12px;color:#888;display:block;margin-bottom:3px;font-weight:600}
+.field input,.field select,.field textarea{width:100%;padding:8px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:13px;font-family:Arial,sans-serif;background:#FDFCFC;color:#2C2C2A}
+.field textarea{resize:vertical;min-height:80px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:#D85A30}
+.info-box{background:#FEF3E7;border-left:4px solid #EF9F27;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;color:#633806;margin-bottom:14px;line-height:1.6}
+.ref-box{background:#EBF5FB;border-left:3px solid #2E86C1;padding:8px 12px;border-radius:0 6px 6px 0;font-size:11px;color:#1A5276;margin-bottom:14px;font-style:italic}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid #E0D8D4}
+.btn{padding:9px 18px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:Arial,sans-serif;display:inline-flex;align-items:center;gap:6px}
+.btn-p{background:#4A1B0C;color:#fff}.btn-p:hover{background:#3A1209}
+.btn-o{background:#D85A30;color:#fff}.btn-o:hover{background:#C04F28}
+.btn-w{background:#fff;border:1px solid #D3C9C2;color:#4A1B0C}.btn-w:hover{background:#F5F0EE}
+.btn-g{background:#16a34a;color:#fff}.btn-g:hover{background:#15803d}
+.btn-add{background:#FAEEDA;border:1px solid #EF9F27;color:#633806;width:100%;margin-top:10px;padding:10px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:Arial,sans-serif}
+.btn-d{background:#fff;border:1px solid #e74c3c;color:#e74c3c;padding:5px 10px;font-size:12px;border-radius:6px;cursor:pointer;font-family:Arial,sans-serif}
+.btn-d:hover{background:#fdf0f0}
+.brow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.person-card{background:#F5F0EE;border:1px solid #E0D8D4;border-radius:8px;padding:14px;margin-bottom:10px}
+.person-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.person-card-head .pct{font-size:12px;font-weight:700;color:#4A1B0C;text-transform:uppercase;letter-spacing:.04em}
+.cause-block{background:#fff;border:1px solid #E0D8D4;border-radius:8px;padding:16px;margin-bottom:12px}
+.cause-block .cb-head{font-size:12px;font-weight:700;color:#4A1B0C;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.cause-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;color:#fff}
+.cb-p{background:#D85A30}.cb-s{background:#EF9F27;color:#2C2C2A}.cb-t{background:#888}
+.cause-item{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cause-item input{flex:1;padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:13px;font-family:Arial,sans-serif;background:#FDFCFC}
+.cause-item input:focus{outline:none;border-color:#D85A30}
+.reco-block{background:#fff;border:1px solid #E0D8D4;border-radius:8px;padding:16px;margin-bottom:12px}
+.reco-block .rb-head{font-size:12px;font-weight:700;color:#4A1B0C;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.reco-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700}
+.rb-mat{background:#FAEEDA;color:#633806;border:1px solid #EF9F27}
+.rb-org{background:#EBF5FB;color:#1A5276;border:1px solid #2E86C1}
+.rb-gen{background:#f0fdf4;color:#14532d;border:1px solid #16a34a}
+.pa-row{display:grid;grid-template-columns:3fr 2fr 1fr auto;gap:8px;align-items:start;margin-bottom:8px}
+.pa-head-row{display:grid;grid-template-columns:3fr 2fr 1fr auto;gap:8px;margin-bottom:4px}
+.pa-head-row span{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.04em}
+.pa-row input,.pa-row select{padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC;width:100%}
+.pa-row input:focus,.pa-row select:focus{outline:none;border-color:#D85A30}
+.recip-row{display:grid;grid-template-columns:2fr 2fr 3fr auto;gap:8px;align-items:start;margin-bottom:8px}
+.recip-row input,.recip-row select{padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC;width:100%}
+.recip-row input:focus{outline:none;border-color:#D85A30}
+.save-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#16a34a;font-weight:600}
+.nav-footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid #E0D8D4;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;z-index:99;box-shadow:0 -2px 12px rgba(0,0,0,.07)}
+.nav-footer .nav-info{font-size:12px;color:#888}
+.preview-box{background:#F5F0EE;border:1px solid #E0D8D4;border-radius:8px;padding:20px;font-size:13px;line-height:1.8;color:#2C2C2A}
+.preview-box h2{font-size:15px;font-weight:700;color:#D85A30;margin:16px 0 4px;padding-bottom:4px;border-bottom:1px solid #D85A30}
+.preview-box h3{font-size:12px;font-weight:700;color:#4A1B0C;margin:10px 0 4px;text-transform:uppercase}
+.preview-box ul{padding-left:18px;margin:4px 0}
+.export-card{background:#4A1B0C;border-radius:9px;padding:20px 24px;color:#fff;margin-bottom:16px;text-align:center}
+.export-card .ec-title{font-size:14px;font-weight:700;color:#EF9F27;margin-bottom:6px}
+.export-card .ec-desc{font-size:12px;color:#F0997B;margin-bottom:16px;line-height:1.5}
+.check-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.check-row label{font-size:13px;color:#2C2C2A;cursor:pointer}
+.check-row input[type=checkbox]{width:16px;height:16px;accent-color:#D85A30;cursor:pointer}
+.radio-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.radio-row label{display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer}
+.radio-row input[type=radio]{width:15px;height:15px;accent-color:#D85A30;cursor:pointer}
+@media(max-width:640px){.fg2,.fg3,.fg4{grid-template-columns:1fr}.pa-row{grid-template-columns:1fr auto}.pa-head-row{display:none}.recip-row{grid-template-columns:1fr auto}}
+/* ─── CAUSES QUATERNAIRES ─────────────────────────────────────────────────── */
+.cb-q{background:#7c3aed}
+/* ─── ARBRE DES CAUSES — CONSTRUCTEUR VISUEL ────────────────────────────── */
+.atc-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.atc-col{border-radius:8px;overflow:hidden;border:1px solid #D3C9C2;display:flex;flex-direction:column}
+.atc-col-head{padding:10px 14px;text-align:center;flex-shrink:0}
+.atc-ch-title{font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.08em}
+.atc-ch-sub{font-size:10px;color:rgba(255,255,255,.72);margin-top:2px}
+.atc-col-body{padding:8px 10px;flex:1;display:flex;flex-direction:column;gap:6px;min-height:54px}
+.atc-node-row{display:flex;align-items:center;gap:5px}
+.atc-node-row input{flex:1;padding:6px 8px;border:1px solid #D3C9C2;border-radius:6px;font-size:11px;font-family:Arial,sans-serif;background:#FDFCFC}
+.atc-node-row input:focus{outline:none;border-color:#2563EB}
+.atc-node-row .atc-del{background:none;border:none;cursor:pointer;color:#ccc;font-size:15px;padding:2px 4px;flex-shrink:0;line-height:1}
+.atc-node-row .atc-del:hover{color:#e74c3c}
+.atc-add-btn{background:none;border:1.5px dashed #D3C9C2;border-radius:6px;color:#aaa;font-size:11px;cursor:pointer;padding:5px;width:100%;text-align:center;font-family:Arial,sans-serif;margin:0}
+.atc-add-btn:hover{border-color:#2563EB;color:#2563EB}
+.atc-svg-wrap{width:100%;overflow:auto;border:1px solid #E0D8D4;border-radius:8px;background:#F8FBFF;margin-top:12px;cursor:default;position:relative}
+#atc-svg{display:block;min-width:720px}
+.atc-col-guide{stroke:#E0D8D4;stroke-width:1;stroke-dasharray:4,4}
+.atc-col-bg-lbl{fill:#C8D8F0;font-size:9px;font-weight:700;font-family:Arial,sans-serif;text-anchor:middle;letter-spacing:.08em}
+.atc-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px;align-items:center}
+.atc-toolbar button{padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:Arial,sans-serif}
+.atc-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+.atc-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#666}
+.atc-legend-dot{width:10px;height:10px;border-radius:50%}
+.atc-hint{font-size:11px;color:#2563EB;font-weight:700;margin-top:6px;display:none}
+/* ─── RECO TIMELINE ──────────────────────────────────────────────────────── */
+.rb-imm{background:#fef2f2;color:#991b1b;border:1px solid #dc2626}
+.rb-ct{background:#FEF3E7;color:#633806;border:1px solid #EF9F27}
+.rb-mt{background:#eff6ff;color:#1e3a8a;border:1px solid #3b82f6}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="sub">Nexum Advisory</div>
+    <div class="title">Analyse Accident du Travail Grave — ATG</div>
+  </div>
+  <div class="ref">Art. II.3-37 — Code du bien-être au travail<br>FOR-GR-103 | <span id="hdr-save" style="color:#86efac"></span></div>
+</div>
+<div class="obar"></div>
+
+<div class="prog-bar">
+  <div class="prog-steps">
+    <div class="prog-step active" id="ps1" onclick="goStep(1)">
+      <div class="ps-num">1</div>
+      <div class="ps-lbl">Identification</div>
+    </div>
+    <div class="prog-step" id="ps2" onclick="goStep(2)">
+      <div class="ps-num">2</div>
+      <div class="ps-lbl">Circonstances</div>
+    </div>
+    <div class="prog-step" id="ps3" onclick="goStep(3)">
+      <div class="ps-num">3</div>
+      <div class="ps-lbl">Causes</div>
+    </div>
+    <div class="prog-step" id="ps4" onclick="goStep(4)">
+      <div class="ps-num">4</div>
+      <div class="ps-lbl">Recommandations</div>
+    </div>
+    <div class="prog-step" id="ps5" onclick="goStep(5)">
+      <div class="ps-num">5</div>
+      <div class="ps-lbl">Participants</div>
+    </div>
+    <div class="prog-step" id="ps6" onclick="goStep(6)">
+      <div class="ps-num">6</div>
+      <div class="ps-lbl">Export</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ═══════════════════════════════════════════════════════
+     ÉTAPE 1 — IDENTIFICATION
+═══════════════════════════════════════════════════════ -->
+<div class="panel active" id="panel1">
+
+  <div class="info-box">
+    <strong>Art. II.3-37 du Code du bien-être au travail</strong> — Tout accident du travail grave doit faire l'objet d'une analyse approfondie par le conseiller en prévention. Ce rapport constitue le document officiel d'enquête.
+  </div>
+
+  <div class="card">
+    <div class="card-title">Données générales du rapport</div>
+    <div class="fg3">
+      <div class="field"><label>Ville de rédaction</label><input id="ville" placeholder="ex. Bruxelles" value="Bruxelles"></div>
+      <div class="field"><label>Date de rédaction du rapport</label><input id="dateRapport" type="date"></div>
+      <div class="field"><label>Date(s) de l'analyse / visite</label><input id="dateAnalyse" placeholder="ex. 01/06/2025"></div>
+    </div>
+    <div class="fg2">
+      <div class="field"><label>Date réception de la déclaration</label><input id="dateDeclaration" type="date"></div>
+      <div class="field">
+        <label>Type d'accident</label>
+        <select id="typeAccident">
+          <option value="grave">Accident grave (Art. II.3-37)</option>
+          <option value="mortel">Accident mortel</option>
+          <option value="arret">Accident avec arrêt de travail</option>
+          <option value="bénin">Accident bénin / sans arrêt</option>
+          <option value="chemin">Accident sur le chemin du travail</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg2">
+      <div class="field">
+        <label>Mode d'enquête</label>
+        <select id="modeEnquete">
+          <option value="tel">Entretiens téléphoniques</option>
+          <option value="visite">Visite en entreprise</option>
+          <option value="mixte">Visite + entretiens téléphoniques</option>
+        </select>
+      </div>
+      <div class="field"><label>Référence interne (optionnel)</label><input id="refInterne" placeholder="ex. DP 2025-001"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Entreprise</div>
+    <div class="fg2">
+      <div class="field"><label>Raison sociale</label><input id="entreprise" placeholder="Nom de l'entreprise"></div>
+      <div class="field"><label>N° d'affiliation</label><input id="affiliation" placeholder="ex. 46469/1"></div>
+    </div>
+    <div class="fg3">
+      <div class="field"><label>Rue et numéro</label><input id="entRue" placeholder="Rue..."></div>
+      <div class="field"><label>Code postal</label><input id="entCP" placeholder="ex. 1000"></div>
+      <div class="field"><label>Commune</label><input id="entVille" placeholder="Commune"></div>
+    </div>
+    <div class="fg2">
+      <div class="field"><label>Nombre de travailleurs</label><input id="nbTrav" type="number" placeholder="ex. 50"></div>
+      <div class="field"><label>Entreprise utilisatrice (si intérim)</label><input id="entUtil" placeholder="Optionnel"></div>
+    </div>
+    <div id="entUtil-addr-block" style="display:none">
+      <div class="section-title">Adresse entreprise utilisatrice</div>
+      <div class="fg3">
+        <div class="field"><label>Rue</label><input id="entUtilRue" placeholder="Rue..."></div>
+        <div class="field"><label>Code postal</label><input id="entUtilCP" placeholder="ex. 1000"></div>
+        <div class="field"><label>Commune</label><input id="entUtilVille" placeholder="Commune"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Victime</div>
+    <div class="fg3">
+      <div class="field"><label>Nom</label><input id="vicNom" placeholder="Nom de famille (MAJUSCULES)"></div>
+      <div class="field"><label>Prénom</label><input id="vicPrenom" placeholder="Prénom"></div>
+      <div class="field"><label>Fonction / métier</label><input id="vicFonction" placeholder="ex. Aide-ménagère"></div>
+    </div>
+    <div class="fg3">
+      <div class="field"><label>Rue et numéro</label><input id="vicRue" placeholder="Adresse..."></div>
+      <div class="field"><label>Code postal</label><input id="vicCP" placeholder="ex. 1000"></div>
+      <div class="field"><label>Commune</label><input id="vicVille" placeholder="Commune"></div>
+    </div>
+    <div class="fg4">
+      <div class="field"><label>Âge</label><input id="vicAge" type="number" placeholder="ex. 35"></div>
+      <div class="field"><label>Ancienneté (depuis le)</label><input id="vicAnciennete" placeholder="ex. 1er juin 2020"></div>
+      <div class="field">
+        <label>Type de contrat</label>
+        <select id="vicContrat">
+          <option value="CDI">CDI</option>
+          <option value="CDD">CDD</option>
+          <option value="intérimaire">Intérimaire</option>
+          <option value="ALE">ALE / Titres-services</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div class="field"><label>Date de l'accident</label><input id="dateAccident" type="date"></div>
+    </div>
+    <div class="fg3">
+      <div class="field"><label>Heure de l'accident</label><input id="heureAccident" type="time"></div>
+      <div class="field"><label>Lésion / nature de la blessure</label><input id="lesion" placeholder="ex. plaie cuir chevelu"></div>
+      <div class="field"><label>Incapacité de travail</label><input id="incapacite" placeholder="ex. ½ jour, jusqu'au 29/05/2025"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Participants à l'analyse</div>
+    <div class="info-box" style="margin-bottom:14px">Listez toutes les personnes ayant participé à l'enquête (conseiller en prévention, victime, responsable, etc.).</div>
+    <div id="participants-list"></div>
+    <button class="btn-add" onclick="addParticipant()">+ Ajouter un participant</button>
+    <div class="section-title" style="margin-top:20px">Rapport rédigé par</div>
+    <div id="redacteurs-list"></div>
+    <button class="btn-add" onclick="addRedacteur()">+ Ajouter un rédacteur</button>
+  </div>
+
+  <div class="brow">
+    <button class="btn btn-o" onclick="goStep(2)">Étape suivante →</button>
+    <span class="save-badge" id="save1"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ÉTAPE 2 — CIRCONSTANCES
+═══════════════════════════════════════════════════════ -->
+<div class="panel" id="panel2">
+
+  <div class="card">
+    <div class="card-title">3. Description du lieu de l'accident</div>
+    <div class="ref-box">Décrivez précisément l'endroit où s'est produit l'accident (adresse, pièce, zone, poste de travail).</div>
+    <div class="fg2">
+      <div class="field"><label>Adresse du lieu de l'accident</label><input id="lieuAdresse" placeholder="ex. Rue de la Layenne 120B, 1360 Perwez"></div>
+      <div class="field"><label>Zone / local précis</label><input id="lieuZone" placeholder="ex. Rez-de-chaussée, hall d'entrée"></div>
+    </div>
+    <div class="field" style="margin-bottom:14px">
+      <label>Description détaillée du lieu</label>
+      <textarea id="lieuDesc" placeholder="Décrivez le lieu avec précision : type de surface, hauteur, disposition des équipements, accessibilité..."></textarea>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="lieuPrive" onchange="autosave()">
+      <label for="lieuPrive">Lieu privé (habitation) — accès limité</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="photosDisponibles" onchange="autosave()">
+      <label for="photosDisponibles">Des photos ont été prises</label>
+    </div>
+    <div id="photos-block" style="display:none;margin-top:10px">
+      <div class="field">
+        <label>Description / légendes des photos</label>
+        <textarea id="photosDesc" placeholder="Photo n°1 : ...\nPhoto n°2 : ..." style="min-height:60px"></textarea>
+      </div>
+      <div class="field" style="margin-top:8px">
+        <label>Source des photos (qui les a fournies)</label>
+        <input id="photosSource" placeholder="ex. M. DUPONT Jean, Conseiller en prévention">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">4. Circonstances de l'accident — Les faits</div>
+    <div class="ref-box">Rédigez un récit chronologique et factuel de l'accident. Évitez tout jugement ou conclusion à ce stade.</div>
+    <div class="field" style="margin-bottom:14px">
+      <label>Description détaillée des faits</label>
+      <textarea id="faits" style="min-height:160px" placeholder="Décrivez chronologiquement ce qui s'est passé : la tâche en cours, l'événement déclencheur, le mécanisme d'accident, les suites immédiates..."></textarea>
+    </div>
+  </div>
+
+  <!-- ── ARBRE DES CAUSES ───────────────────────────────────────── -->
+  <div class="card">
+    <div class="card-title">Arbre des causes — Méthode INRS</div>
+    <div class="info-box">Saisissez les causes dans chaque colonne. L'arbre SVG se génère automatiquement. <strong>Pour relier deux nœuds</strong> : cliquez-glissez depuis le cercle blanc (port de sortie) d'un nœud vers le nœud cible. Cliquez sur une flèche pour la supprimer. Appuyez sur Échap pour annuler une liaison.</div>
+    <div class="atc-cols">
+      <!-- Col 0 : Antécédents -->
+      <div class="atc-col">
+        <div class="atc-col-head" style="background:#1D4ED8">
+          <div class="atc-ch-title">Antécédents</div>
+          <div class="atc-ch-sub">Causes profondes</div>
+        </div>
+        <div class="atc-col-body" id="atc-inputs-0"></div>
+        <div style="padding:0 10px 10px"><button class="atc-add-btn" onclick="atcAddNode(0)">+ Ajouter un antécédent</button></div>
+      </div>
+      <!-- Col 1 : Faits intermédiaires -->
+      <div class="atc-col">
+        <div class="atc-col-head" style="background:#2563EB">
+          <div class="atc-ch-title">Faits intermédiaires</div>
+          <div class="atc-ch-sub">Enchaînement des faits</div>
+        </div>
+        <div class="atc-col-body" id="atc-inputs-1"></div>
+        <div style="padding:0 10px 10px"><button class="atc-add-btn" onclick="atcAddNode(1)">+ Ajouter un fait intermédiaire</button></div>
+      </div>
+      <!-- Col 2 : Fait ultime -->
+      <div class="atc-col">
+        <div class="atc-col-head" style="background:#DC2626">
+          <div class="atc-ch-title">Fait ultime</div>
+          <div class="atc-ch-sub">L'accident</div>
+        </div>
+        <div class="atc-col-body" id="atc-inputs-2"></div>
+        <div style="padding:0 10px 10px" id="atc-add-ult-wrap"><button class="atc-add-btn" onclick="atcAddNode(2)" style="border-color:#DC2626;color:#DC2626">+ Décrire l'accident</button></div>
+      </div>
+    </div>
+    <div class="atc-toolbar">
+      <button style="background:#4A1B0C;color:#fff" onclick="atcAutoLayout()">⚡ Auto-disposition</button>
+      <button style="background:#6B7280;color:#fff" onclick="atcClearLinks()">🔗 Effacer les liaisons</button>
+      <button style="background:#F5F0EE;color:#4A1B0C;border:1px solid #D3C9C2" onclick="atcClear()">🗑 Effacer tout</button>
+      <button style="background:#16a34a;color:#fff" onclick="atcExportPNG()">⬇ PNG</button>
+    </div>
+    <div class="atc-svg-wrap">
+      <svg id="atc-svg" width="800" height="200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="atc-arrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto">
+            <polygon points="0 0, 8 3.5, 0 7" fill="#475569"/>
+          </marker>
+        </defs>
+        <line class="atc-col-guide" id="atc-guide-1" x1="267" y1="30" x2="267" y2="600"/>
+        <line class="atc-col-guide" id="atc-guide-2" x1="533" y1="30" x2="533" y2="600"/>
+        <text class="atc-col-bg-lbl" x="134" y="18">ANTÉCÉDENTS</text>
+        <text class="atc-col-bg-lbl" x="400" y="18">FAITS INTERMÉDIAIRES</text>
+        <text class="atc-col-bg-lbl" x="667" y="18">FAIT ULTIME</text>
+        <g id="atc-links-layer"></g>
+        <g id="atc-nodes-layer"></g>
+        <line id="atc-temp-line" x1="0" y1="0" x2="0" y2="0" stroke="#2563EB" stroke-dasharray="6,3" stroke-width="2" display="none" pointer-events="none"/>
+      </svg>
+    </div>
+    <div class="atc-hint" id="atc-connect-hint">Mode connexion actif — Glissez vers le nœud cible. Cliquez ailleurs ou appuyez sur Échap pour annuler.</div>
+    <div class="atc-legend">
+      <div class="atc-legend-item"><div class="atc-legend-dot" style="background:#1D4ED8"></div> Antécédent</div>
+      <div class="atc-legend-item"><div class="atc-legend-dot" style="background:#2563EB"></div> Fait intermédiaire</div>
+      <div class="atc-legend-item"><div class="atc-legend-dot" style="background:#DC2626"></div> Fait ultime (accident)</div>
+      <div class="atc-legend-item" style="margin-left:10px;color:#888;font-style:italic">● = port de sortie (glisser pour connecter)</div>
+    </div>
+  </div>
+  <!-- ── FIN ARBRE DES CAUSES ───────────────────────────────────── -->
+
+  <!-- ── ANALYSE IA (via Netlify Function) ────────────────────── -->
+  <div class="card" style="border:1.5px solid #D85A30">
+    <div class="card-title" style="color:#D85A30">🤖 Analyse IA — Optionnelle</div>
+    <div class="info-box">L'IA analyse les faits rédigés et propose automatiquement des causes (4 niveaux) et des recommandations (3 horizons temporels). Les résultats pré-remplissent les étapes 3 et 4 et restent entièrement modifiables.</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px">
+      <button class="btn btn-o" id="btn-ai-gen" onclick="aiGenerate()" style="font-size:13px;padding:10px 20px">🤖 Générer l'analyse IA</button>
+      <span id="ai-status" style="font-size:12px;font-weight:600"></span>
+    </div>
+  </div>
+  <!-- ── FIN ANALYSE IA ────────────────────────────────────────── -->
+
+  <div class="card">
+    <div class="card-title">Éléments complémentaires — Déclarations</div>
+    <div class="info-box">Pour chaque personne interrogée, renseignez les éléments clés de son témoignage. Ces informations structureront le §4 du rapport.</div>
+
+    <div class="section-title">Déclaration de la victime</div>
+    <div class="fg3">
+      <div class="field">
+        <label>Ancienneté / satisfaction</label>
+        <input id="vd_anc" placeholder="ex. Travaille depuis le 2/06/2020, satisfaite">
+      </div>
+      <div class="field">
+        <label>Connaissance du travail</label>
+        <select id="vd_connait">
+          <option value="">— Sélectionner —</option>
+          <option value="oui">Connaissait le travail à effectuer</option>
+          <option value="peu">Connaissait peu le travail</option>
+          <option value="non">Ne connaissait pas ce travail</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Précipitation</label>
+        <select id="vd_precip">
+          <option value="">— Sélectionner —</option>
+          <option value="non">Ne travaillait pas dans la précipitation</option>
+          <option value="oui">Travaillait dans la précipitation</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg3">
+      <div class="field">
+        <label>État normal / alcool/médicaments</label>
+        <select id="vd_etat">
+          <option value="">— Sélectionner —</option>
+          <option value="normal">Semblait dans son état normal</option>
+          <option value="alcool">Sous influence d'alcool</option>
+          <option value="medicaments">Sous influence de médicaments</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Témoin(s) présent(s)</label>
+        <select id="vd_temoin">
+          <option value="">— Sélectionner —</option>
+          <option value="non">Pas de témoin</option>
+          <option value="oui">Témoin(s) présent(s)</option>
+          <option value="indirect">Témoin indirect</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Nom et fonction du/des témoin(s)</label>
+        <input id="vd_temoinNom" placeholder="Optionnel si pas de témoin">
+      </div>
+    </div>
+    <div class="fg3">
+      <div class="field">
+        <label>EPI disponibles et portés</label>
+        <select id="vd_epi">
+          <option value="">— Sélectionner —</option>
+          <option value="oui_portes">EPI disponibles et portés</option>
+          <option value="dispo_non">EPI disponibles mais non portés</option>
+          <option value="non_dispo">EPI non disponibles</option>
+          <option value="na">Sans objet</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>EPI portés (détail)</label>
+        <input id="vd_epiDetail" placeholder="ex. chaussures de sécurité, gants">
+      </div>
+      <div class="field">
+        <label>Analyse des risques effectuée</label>
+        <select id="vd_arda">
+          <option value="">— Sélectionner —</option>
+          <option value="non">Analyse des risques non effectuée pour ce travail</option>
+          <option value="oui">Analyse des risques existante</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg2">
+      <div class="field">
+        <label>Procédure écrite existante</label>
+        <select id="vd_proc">
+          <option value="">— Sélectionner —</option>
+          <option value="oui">Procédure écrite existante</option>
+          <option value="non">Pas de procédure écrite</option>
+          <option value="partiel">Plan partiel / peu détaillé</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Mesures immédiates après accident</label>
+        <input id="vd_suite" placeholder="ex. Premiers soins, appel 112, urgences...">
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:14px">
+      <label>Autres éléments déclarés par la victime</label>
+      <textarea id="vd_autres" style="min-height:60px" placeholder="Tout autre élément pertinent déclaré par la victime..."></textarea>
+    </div>
+
+    <div class="section-title">Déclaration de l'employeur / responsable</div>
+    <div class="fg2">
+      <div class="field"><label>Nom et fonction de l'interlocuteur</label><input id="emp_nom" placeholder="ex. M. DUPONT Jean, Responsable d'agence"></div>
+      <div class="field">
+        <label>Type de contrat de la victime</label>
+        <select id="emp_contrat">
+          <option value="">— Sélectionner —</option>
+          <option value="cdi">Victime en CDI</option>
+          <option value="cdd">Victime en CDD</option>
+          <option value="int">Victime intérimaire</option>
+          <option value="ale">Victime ALE/Titres-services</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg3">
+      <div class="field">
+        <label>Premier accident de ce type</label>
+        <select id="emp_premier">
+          <option value="">— Sélectionner —</option>
+          <option value="oui">Premier accident de ce type dans l'entreprise</option>
+          <option value="non">Déjà survenu auparavant</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Surcharge de travail</label>
+        <select id="emp_surcharge">
+          <option value="">— Sélectionner —</option>
+          <option value="non">Pas de surcharge au moment de l'accident</option>
+          <option value="oui">Surcharge de travail signalée</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Organisation du travail modifiée</label>
+        <select id="emp_orga">
+          <option value="">— Sélectionner —</option>
+          <option value="non">Organisation du travail non modifiée</option>
+          <option value="oui">Organisation du travail modifiée récemment</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg3">
+      <div class="field">
+        <label>Relations avec l'employeur/collègues</label>
+        <select id="emp_rel">
+          <option value="">— Sélectionner —</option>
+          <option value="bonnes">Bonnes relations avec employeur et collègues</option>
+          <option value="tensions">Tensions signalées</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Climat de sécurité</label>
+        <select id="emp_secu">
+          <option value="">— Sélectionner —</option>
+          <option value="ok">Pas de problème au niveau du climat de sécurité</option>
+          <option value="pb">Problèmes de sécurité signalés</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Fiche de poste existante</label>
+        <select id="emp_fiche">
+          <option value="">— Sélectionner —</option>
+          <option value="oui">Fiche de poste et description de fonction existante</option>
+          <option value="non">Pas de fiche de poste</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:14px">
+      <label>Autres éléments déclarés par l'employeur / responsable</label>
+      <textarea id="emp_autres" style="min-height:60px" placeholder="Informations complémentaires, mesures déjà prises, contexte..."></textarea>
+    </div>
+  </div>
+
+  <div class="brow">
+    <button class="btn btn-w" onclick="goStep(1)">← Retour</button>
+    <button class="btn btn-o" onclick="goStep(3)">Étape suivante →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ÉTAPE 3 — CAUSES
+═══════════════════════════════════════════════════════ -->
+<div class="panel" id="panel3">
+
+  <div class="info-box">
+    <strong>Méthode arbre des causes (INRS) :</strong><br>
+    • <strong>Causes primaires</strong> — Faits matériels ayant directement rendu l'accident possible.<br>
+    • <strong>Causes secondaires</strong> — Causes organisationnelles à l'origine des causes primaires.<br>
+    • <strong>Causes tertiaires</strong> — Causes chez des tiers (client, donneur d'ordre, fabricant…).<br>
+    • <strong>Causes quaternaires</strong> — Facteurs psychosociaux au travail (stress, charge, climat…).
+  </div>
+  <div class="ref-box">Art. II.3-37 §4 CBET — La notification doit identifier les causes immédiates, les causes à l'origine et les mesures de prévention envisagées.</div>
+
+  <div class="cause-block">
+    <div class="cb-head"><span class="cause-badge cb-p">PRIMAIRES</span> Faits matériels ayant rendu l'accident possible</div>
+    <div id="causes-p-list"></div>
+    <button class="btn-add" onclick="addCause('p')">+ Ajouter une cause primaire</button>
+  </div>
+
+  <div class="cause-block">
+    <div class="cb-head"><span class="cause-badge cb-s">SECONDAIRES</span> Causes organisationnelles</div>
+    <div id="causes-s-list"></div>
+    <button class="btn-add" onclick="addCause('s')">+ Ajouter une cause secondaire</button>
+  </div>
+
+  <div class="cause-block">
+    <div class="cb-head"><span class="cause-badge cb-t">TERTIAIRES</span> Causes chez des tiers</div>
+    <div id="causes-t-list"></div>
+    <button class="btn-add" onclick="addCause('t')">+ Ajouter une cause tertiaire</button>
+  </div>
+
+  <div class="cause-block">
+    <div class="cb-head"><span class="cause-badge cb-q">QUATERNAIRES</span> Facteurs psychosociaux au travail</div>
+    <div class="ref-box" style="margin-bottom:10px">Stress, surcharge, manque de ressources, incertitude, relations interpersonnelles, climat de sécurité… (Code du bien-être, Livre X — Risques psychosociaux)</div>
+    <div id="causes-q-list"></div>
+    <button class="btn-add" onclick="addCause('q')">+ Ajouter une cause psychosociale</button>
+  </div>
+
+  <!-- ── ARBRE DES CAUSES ───────────────────────────────────────── -->
+  <div class="card">
+    <div class="card-title">Arbre des causes</div>
+    <div class="info-box">L'arbre des causes est construit à l'étape 2. <a href="#" onclick="goStep(2);return false" style="color:#D85A30;font-weight:700">← Retourner à l'étape 2 pour éditer l'arbre</a></div>
+  </div>
+  <!-- ── FIN ARBRE ────────────────────────────────────────────────── -->
+
+  <div class="brow">
+    <button class="btn btn-w" onclick="goStep(2)">← Retour</button>
+    <button class="btn btn-o" onclick="goStep(4)">Étape suivante →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ÉTAPE 4 — RECOMMANDATIONS
+═══════════════════════════════════════════════════════ -->
+<div class="panel" id="panel4">
+
+  <div class="info-box">
+    Rédigez les recommandations selon les catégories et horizons temporels. Les <strong>recommandations générales</strong> (analyse des risques) sont pré-incluses conformément au CBET.
+  </div>
+
+  <div class="reco-block">
+    <div class="rb-head"><span class="reco-badge rb-imm">⚡ Immédiates</span> <span style="font-size:11px;color:#888">À mettre en œuvre sans délai</span></div>
+    <div id="reco-imm-list"></div>
+    <button class="btn-add" onclick="addReco('imm')">+ Ajouter une mesure immédiate</button>
+  </div>
+
+  <div class="reco-block">
+    <div class="rb-head"><span class="reco-badge rb-ct">📅 Court terme</span> <span style="font-size:11px;color:#888">Dans le mois suivant l'accident</span></div>
+    <div id="reco-ct-list"></div>
+    <button class="btn-add" onclick="addReco('ct')">+ Ajouter une mesure court terme</button>
+  </div>
+
+  <div class="reco-block">
+    <div class="rb-head"><span class="reco-badge rb-mt">🗓 Moyen terme</span> <span style="font-size:11px;color:#888">Dans les 1 à 6 mois</span></div>
+    <div id="reco-mt-list"></div>
+    <button class="btn-add" onclick="addReco('mt')">+ Ajouter une mesure moyen terme</button>
+  </div>
+
+  <div class="reco-block">
+    <div class="rb-head"><span class="reco-badge rb-mat">Matérielles</span></div>
+    <div id="reco-mat-list"></div>
+    <button class="btn-add" onclick="addReco('mat')">+ Ajouter une recommandation matérielle</button>
+  </div>
+
+  <div class="reco-block">
+    <div class="rb-head"><span class="reco-badge rb-org">Organisationnelles</span></div>
+    <div id="reco-org-list"></div>
+    <button class="btn-add" onclick="addReco('org')">+ Ajouter une recommandation organisationnelle</button>
+  </div>
+
+  <div class="reco-block">
+    <div class="rb-head"><span class="reco-badge rb-gen">Générales — Analyse des risques</span></div>
+    <div class="info-box" style="font-size:12px;margin-bottom:12px">
+      Le texte standard suivant sera automatiquement inclus dans le rapport. Vous pouvez y ajouter des recommandations spécifiques supplémentaires.
+    </div>
+    <div class="card" style="background:#F5F0EE;font-size:12px;line-height:1.7;margin-bottom:12px">
+      Nous vous recommandons de réaliser une analyse des risques professionnels pour chacun des postes de travail en tenant compte des différentes étapes des opérations. Cette démarche constitue l'étape clé d'une démarche de prévention efficace. Destinée à mieux connaître et à mieux maîtriser les risques encourus par vos travailleurs, elle vous permettra de disposer des éléments adaptés à la prise de mesures de prévention. Cette analyse comporte quatre phases successives :
+      <ul style="margin-top:6px;padding-left:20px">
+        <li>Préparation de l'évaluation ;</li>
+        <li>Identification des risques ;</li>
+        <li>Classement des facteurs de risques ;</li>
+        <li>Propositions de mesures de prévention. Les mesures de prévention à mettre en place seront ensuite intégrées dans le plan global de prévention et dans le plan annuel d'actions. <em>(Code du Bien-Être, Livre I, Titre 2)</em></li>
+      </ul>
+      <div style="margin-top:8px">Mettre à jour votre plan global de prévention et le plan annuel d'action.</div>
+    </div>
+    <div id="reco-gen-list"></div>
+    <button class="btn-add" onclick="addReco('gen')">+ Ajouter une recommandation générale supplémentaire</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Plan d'actions</div>
+    <div class="info-box" style="margin-bottom:12px">Optionnel — Complétez le tableau de suivi des actions correctives si vous souhaitez l'inclure dans le rapport.</div>
+    <div class="pa-head-row">
+      <span>Action / mesure</span>
+      <span>Responsable</span>
+      <span>Délai</span>
+      <span></span>
+    </div>
+    <div id="pa-list"></div>
+    <button class="btn-add" onclick="addPA()">+ Ajouter une action</button>
+  </div>
+
+  <div class="brow">
+    <button class="btn btn-w" onclick="goStep(3)">← Retour</button>
+    <button class="btn btn-o" onclick="goStep(5)">Étape suivante →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ÉTAPE 5 — PARTICIPANTS & DISTRIBUTION
+═══════════════════════════════════════════════════════ -->
+<div class="panel" id="panel5">
+
+  <div class="card">
+    <div class="card-title">7. Personnes ayant collaboré à l'analyse</div>
+    <div class="info-box" style="margin-bottom:12px">Listez toutes les personnes qui ont participé à l'enquête et dont les déclarations ont alimenté ce rapport.</div>
+    <div id="collab-list"></div>
+    <button class="btn-add" onclick="addCollab()">+ Ajouter un collaborateur</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">8. Personne ayant élaboré ce rapport</div>
+    <div id="auteur-list"></div>
+    <button class="btn-add" onclick="addAuteur()">+ Ajouter un auteur</button>
+    <div class="section-title" style="margin-top:16px">Coordonnées du service externe</div>
+    <div class="fg2">
+      <div class="field"><label>Nom du service / société</label><input id="seNom" placeholder="ex. Nexum Advisory" value="Nexum Advisory"></div>
+      <div class="field"><label>Adresse</label><input id="seAdresse" placeholder="Rue, CP, Ville"></div>
+    </div>
+    <div class="fg3">
+      <div class="field"><label>Téléphone</label><input id="seTel" placeholder="ex. 02/..."></div>
+      <div class="field"><label>Site web</label><input id="seSite" placeholder="ex. www.nexum-advisory.be"></div>
+      <div class="field"><label>Email</label><input id="seEmail" placeholder="contact@nexum-advisory.be"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">9. Distribution du rapport</div>
+    <div class="info-box" style="margin-bottom:12px">Renseignez les coordonnées de chaque destinataire d'une copie du rapport.</div>
+    <div id="distrib-list"></div>
+    <button class="btn-add" onclick="addDistrib()">+ Ajouter un destinataire</button>
+  </div>
+
+  <div class="brow">
+    <button class="btn btn-w" onclick="goStep(4)">← Retour</button>
+    <button class="btn btn-o" onclick="goStep(6)">Aperçu & Export →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ÉTAPE 6 — EXPORT
+═══════════════════════════════════════════════════════ -->
+<div class="panel" id="panel6">
+
+  <div class="export-card">
+    <div class="ec-title">Générer le rapport ATG</div>
+    <div class="ec-desc">L'export Word reproduit fidèlement la structure officielle FOR-GR-103 en 9 sections, conforme à l'Art. II.3-37 du Code du bien-être au travail.</div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-o" onclick="exportWord()" style="font-size:14px;padding:12px 28px">
+        ⬇ Exporter en Word (.docx)
+      </button>
+      <button class="btn btn-w" onclick="buildPreview()" style="font-size:14px;padding:12px 28px">
+        👁 Aperçu du rapport
+      </button>
+    </div>
+  </div>
+
+  <div id="preview-container" style="display:none">
+    <div class="card">
+      <div class="card-title">Aperçu du rapport</div>
+      <div class="preview-box" id="preview-box"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Gestion des données</div>
+    <div class="brow">
+      <button class="btn btn-w" onclick="exportJSON()">💾 Sauvegarder (JSON)</button>
+      <button class="btn btn-w" onclick="importJSON()">📂 Charger un fichier JSON</button>
+      <input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadJSON(event)">
+      <button class="btn btn-d" onclick="clearAll()">🗑 Effacer toutes les données</button>
+    </div>
+  </div>
+
+  <div class="brow">
+    <button class="btn btn-w" onclick="goStep(5)">← Retour</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<div class="nav-footer">
+  <div class="nav-info" id="nav-step-info">Étape 1 / 6 — Identification</div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="save-badge" id="save-global">&#10003; Données sauvegardées</span>
+  </div>
+</div>
+
+<script>
+// ─── STEP NAV ────────────────────────────────────────────────────────────────
+var currentStep=1;
+var stepNames=['','Identification','Circonstances','Causes','Recommandations','Participants','Export'];
+function goStep(n){
+  autosave();
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+  document.getElementById('panel'+n).classList.add('active');
+  document.querySelectorAll('.prog-step').forEach(function(s,i){
+    s.classList.remove('active','done');
+    if(i+1===n)s.classList.add('active');
+    else if(i+1<n)s.classList.add('done');
+  });
+  currentStep=n;
+  document.getElementById('nav-step-info').textContent='Étape '+n+' / 6 — '+stepNames[n];
+  window.scrollTo(0,0);
+}
+
+// ─── PARTICIPANTS DYNAMIQUES ─────────────────────────────────────────────────
+function mkPersonRow(id, placeholder1, placeholder2, placeholder3){
+  var d=document.createElement('div');
+  d.className='person-card';
+  d.innerHTML='<div class="person-card-head"><span class="pct">Personne</span><button class="btn-d" onclick="this.closest(\'.person-card\').remove();autosave()">✕ Supprimer</button></div>'
+    +'<div class="fg3">'
+    +'<div class="field"><label>Civilité & Nom Prénom</label><input class="pc-nom" placeholder="'+placeholder1+'"></div>'
+    +'<div class="field"><label>Fonction</label><input class="pc-fonc" placeholder="'+placeholder2+'"></div>'
+    +'<div class="field"><label>Organisation</label><input class="pc-org" placeholder="'+placeholder3+'"></div>'
+    +'</div>';
+  d.querySelectorAll('input').forEach(function(inp){inp.addEventListener('input',autosave)});
+  return d;
+}
+function addParticipant(){
+  var el=mkPersonRow('p','ex. M. DUPONT Jean','Conseiller en prévention niveau 1','ex. Nexum Advisory');
+  document.getElementById('participants-list').appendChild(el);
+}
+function addRedacteur(){
+  var d=document.createElement('div');
+  d.className='person-card';
+  d.innerHTML='<div class="person-card-head"><span class="pct">Rédacteur</span><button class="btn-d" onclick="this.closest(\'.person-card\').remove();autosave()">✕ Supprimer</button></div>'
+    +'<div class="fg3">'
+    +'<div class="field"><label>Civilité & Nom Prénom</label><input class="rd-nom" placeholder="ex. M. DUPONT Jean"></div>'
+    +'<div class="field"><label>Fonction</label><input class="rd-fonc" placeholder="ex. Conseiller en prévention"></div>'
+    +'<div class="field"><label>Email</label><input class="rd-email" type="email" placeholder="email@..."></div>'
+    +'</div>';
+  d.querySelectorAll('input').forEach(function(inp){inp.addEventListener('input',autosave)});
+  document.getElementById('redacteurs-list').appendChild(d);
+}
+function addCollab(){
+  var el=mkPersonRow('c','ex. MME MARTIN Claire','Aide-ménagère','ex. Nom Entreprise');
+  document.getElementById('collab-list').appendChild(el);
+}
+function addAuteur(){
+  var d=document.createElement('div');
+  d.className='person-card';
+  d.innerHTML='<div class="person-card-head"><span class="pct">Auteur</span><button class="btn-d" onclick="this.closest(\'.person-card\').remove();autosave()">✕ Supprimer</button></div>'
+    +'<div class="fg3">'
+    +'<div class="field"><label>Civilité & Nom Prénom</label><input class="au-nom" placeholder="ex. M. DUPONT Jean"></div>'
+    +'<div class="field"><label>Fonction</label><input class="au-fonc" placeholder="ex. Conseiller en prévention niveau 1"></div>'
+    +'<div class="field"><label>Email</label><input class="au-email" type="email" placeholder="email@..."></div>'
+    +'</div>';
+  d.querySelectorAll('input').forEach(function(inp){inp.addEventListener('input',autosave)});
+  document.getElementById('auteur-list').appendChild(d);
+}
+function addDistrib(){
+  var d=document.createElement('div');
+  d.className='person-card';
+  d.innerHTML='<div class="person-card-head"><span class="pct">Destinataire</span><button class="btn-d" onclick="this.closest(\'.person-card\').remove();autosave()">✕ Supprimer</button></div>'
+    +'<div class="fg2">'
+    +'<div class="field"><label>Civilité & Nom Prénom</label><input class="di-nom" placeholder="ex. M. MARTIN Pierre"></div>'
+    +'<div class="field"><label>Fonction</label><input class="di-fonc" placeholder="ex. Conseiller en prévention niveau 1"></div>'
+    +'</div>'
+    +'<div class="fg3">'
+    +'<div class="field"><label>Entreprise / Organisation</label><input class="di-org" placeholder="Nom de l\'entreprise"></div>'
+    +'<div class="field"><label>Adresse</label><input class="di-adr" placeholder="Rue, CP, Ville"></div>'
+    +'<div class="field"><label>Email</label><input class="di-email" type="email" placeholder="email@..."></div>'
+    +'</div>';
+  d.querySelectorAll('input').forEach(function(inp){inp.addEventListener('input',autosave)});
+  document.getElementById('distrib-list').appendChild(d);
+}
+
+// ─── CAUSES ─────────────────────────────────────────────────────────────────
+function addCause(type){
+  var d=document.createElement('div');
+  d.className='cause-item';
+  d.innerHTML='<input placeholder="Décrivez la cause..." oninput="autosave()"><button class="btn-d" onclick="this.closest(\'.cause-item\').remove();autosave()">✕</button>';
+  var listEl=document.getElementById('causes-'+type+'-list');
+  if(listEl)listEl.appendChild(d);
+}
+
+// ─── RECOMMANDATIONS ────────────────────────────────────────────────────────
+function addReco(type){
+  var d=document.createElement('div');
+  d.style.cssText='display:flex;align-items:flex-start;gap:8px;margin-bottom:8px';
+  d.innerHTML='<textarea style="flex:1;padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC;resize:vertical;min-height:50px" placeholder="Rédigez la recommandation..." oninput="autosave()"></textarea>'
+    +'<button class="btn-d" style="margin-top:4px" onclick="this.parentNode.remove();autosave()">✕</button>';
+  document.getElementById('reco-'+type+'-list').appendChild(d);
+}
+
+// ─── PLAN D'ACTIONS ─────────────────────────────────────────────────────────
+function addPA(){
+  var d=document.createElement('div');
+  d.className='pa-row';
+  d.innerHTML='<input placeholder="Description de l\'action..." oninput="autosave()">'
+    +'<input placeholder="Responsable..." oninput="autosave()">'
+    +'<input placeholder="Délai..." oninput="autosave()">'
+    +'<button class="btn-d" onclick="this.closest(\'.pa-row\').remove();autosave()">✕</button>';
+  document.getElementById('pa-list').appendChild(d);
+}
+
+// ─── TOGGLE AFFICHAGE ───────────────────────────────────────────────────────
+document.getElementById('entUtil').addEventListener('input',function(){
+  document.getElementById('entUtil-addr-block').style.display=this.value.trim()?'block':'none';
+  autosave();
+});
+document.getElementById('photosDisponibles').addEventListener('change',function(){
+  document.getElementById('photos-block').style.display=this.checked?'block':'none';
+  autosave();
+});
+
+// ─── AUTOSAVE ───────────────────────────────────────────────────────────────
+var saveTimer=null;
+function autosave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(function(){
+    try{
+      localStorage.setItem('atg_nexum_v1',JSON.stringify(collectData()));
+      var now=new Date();
+      var ts=now.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+      document.getElementById('hdr-save').textContent='Sauvegardé '+ts;
+      document.getElementById('save-global').textContent='✓ Sauvegardé '+ts;
+    }catch(e){}
+  },800);
+}
+
+// ─── COLLECT DATA ────────────────────────────────────────────────────────────
+function collectData(){
+  function v(id){var el=document.getElementById(id);return el?el.value:''}
+  function c(id){var el=document.getElementById(id);return el?el.checked:false}
+
+  var participants=[];
+  document.querySelectorAll('#participants-list .person-card').forEach(function(el){
+    participants.push({nom:el.querySelector('.pc-nom').value,fonc:el.querySelector('.pc-fonc').value,org:el.querySelector('.pc-org').value});
+  });
+  var redacteurs=[];
+  document.querySelectorAll('#redacteurs-list .person-card').forEach(function(el){
+    redacteurs.push({nom:el.querySelector('.rd-nom').value,fonc:el.querySelector('.rd-fonc').value,email:el.querySelector('.rd-email').value});
+  });
+  var causesP=[],causesS=[],causesT=[],causesQ=[];
+  document.querySelectorAll('#causes-p-list .cause-item input').forEach(function(el){causesP.push(el.value)});
+  document.querySelectorAll('#causes-s-list .cause-item input').forEach(function(el){causesS.push(el.value)});
+  document.querySelectorAll('#causes-t-list .cause-item input').forEach(function(el){causesT.push(el.value)});
+  document.querySelectorAll('#causes-q-list .cause-item input').forEach(function(el){causesQ.push(el.value)});
+  var recoImm=[],recoCT=[],recoMT=[],recoMat=[],recoOrg=[],recoGen=[];
+  document.querySelectorAll('#reco-imm-list textarea').forEach(function(el){recoImm.push(el.value)});
+  document.querySelectorAll('#reco-ct-list textarea').forEach(function(el){recoCT.push(el.value)});
+  document.querySelectorAll('#reco-mt-list textarea').forEach(function(el){recoMT.push(el.value)});
+  document.querySelectorAll('#reco-mat-list textarea').forEach(function(el){recoMat.push(el.value)});
+  document.querySelectorAll('#reco-org-list textarea').forEach(function(el){recoOrg.push(el.value)});
+  document.querySelectorAll('#reco-gen-list textarea').forEach(function(el){recoGen.push(el.value)});
+  var pa=[];
+  document.querySelectorAll('#pa-list .pa-row').forEach(function(el){
+    var ins=el.querySelectorAll('input');
+    pa.push({action:ins[0].value,resp:ins[1].value,delai:ins[2].value});
+  });
+  var collabs=[];
+  document.querySelectorAll('#collab-list .person-card').forEach(function(el){
+    collabs.push({nom:el.querySelector('.pc-nom').value,fonc:el.querySelector('.pc-fonc').value,org:el.querySelector('.pc-org').value});
+  });
+  var auteurs=[];
+  document.querySelectorAll('#auteur-list .person-card').forEach(function(el){
+    auteurs.push({nom:el.querySelector('.au-nom').value,fonc:el.querySelector('.au-fonc').value,email:el.querySelector('.au-email').value});
+  });
+  var distribs=[];
+  document.querySelectorAll('#distrib-list .person-card').forEach(function(el){
+    distribs.push({nom:el.querySelector('.di-nom').value,fonc:el.querySelector('.di-fonc').value,org:el.querySelector('.di-org').value,adr:el.querySelector('.di-adr').value,email:el.querySelector('.di-email').value});
+  });
+
+  return{
+    ville:v('ville'),dateRapport:v('dateRapport'),dateAnalyse:v('dateAnalyse'),
+    dateDeclaration:v('dateDeclaration'),typeAccident:v('typeAccident'),
+    modeEnquete:v('modeEnquete'),refInterne:v('refInterne'),
+    entreprise:v('entreprise'),affiliation:v('affiliation'),
+    entRue:v('entRue'),entCP:v('entCP'),entVille:v('entVille'),
+    nbTrav:v('nbTrav'),entUtil:v('entUtil'),
+    entUtilRue:v('entUtilRue'),entUtilCP:v('entUtilCP'),entUtilVille:v('entUtilVille'),
+    vicNom:v('vicNom'),vicPrenom:v('vicPrenom'),vicFonction:v('vicFonction'),
+    vicRue:v('vicRue'),vicCP:v('vicCP'),vicVille:v('vicVille'),
+    vicAge:v('vicAge'),vicAnciennete:v('vicAnciennete'),vicContrat:v('vicContrat'),
+    dateAccident:v('dateAccident'),heureAccident:v('heureAccident'),
+    lesion:v('lesion'),incapacite:v('incapacite'),
+    participants:participants,redacteurs:redacteurs,
+    lieuAdresse:v('lieuAdresse'),lieuZone:v('lieuZone'),lieuDesc:v('lieuDesc'),
+    lieuPrive:c('lieuPrive'),photosDisponibles:c('photosDisponibles'),
+    photosDesc:v('photosDesc'),photosSource:v('photosSource'),
+    faits:v('faits'),
+    vd_anc:v('vd_anc'),vd_connait:v('vd_connait'),vd_precip:v('vd_precip'),
+    vd_etat:v('vd_etat'),vd_temoin:v('vd_temoin'),vd_temoinNom:v('vd_temoinNom'),
+    vd_epi:v('vd_epi'),vd_epiDetail:v('vd_epiDetail'),vd_arda:v('vd_arda'),
+    vd_proc:v('vd_proc'),vd_suite:v('vd_suite'),vd_autres:v('vd_autres'),
+    emp_nom:v('emp_nom'),emp_contrat:v('emp_contrat'),emp_premier:v('emp_premier'),
+    emp_surcharge:v('emp_surcharge'),emp_orga:v('emp_orga'),emp_rel:v('emp_rel'),
+    emp_secu:v('emp_secu'),emp_fiche:v('emp_fiche'),emp_autres:v('emp_autres'),
+    causesP:causesP,causesS:causesS,causesT:causesT,causesQ:causesQ,
+    recoImm:recoImm,recoCT:recoCT,recoMT:recoMT,
+    recoMat:recoMat,recoOrg:recoOrg,recoGen:recoGen,pa:pa,
+    atcNodes:atcState.nodes,atcLinks:atcState.links,
+    collabs:collabs,auteurs:auteurs,
+    seNom:v('seNom'),seAdresse:v('seAdresse'),seTel:v('seTel'),seSite:v('seSite'),seEmail:v('seEmail'),
+    distribs:distribs
+  };
+}
+
+// ─── RESTORE DATA ────────────────────────────────────────────────────────────
+function restoreData(d){
+  function s(id,val){var el=document.getElementById(id);if(el&&val!==undefined)el.value=val;}
+  function sc(id,val){var el=document.getElementById(id);if(el)el.checked=!!val;}
+  s('ville',d.ville);s('dateRapport',d.dateRapport);s('dateAnalyse',d.dateAnalyse);
+  s('dateDeclaration',d.dateDeclaration);s('typeAccident',d.typeAccident);
+  s('modeEnquete',d.modeEnquete);s('refInterne',d.refInterne);
+  s('entreprise',d.entreprise);s('affiliation',d.affiliation);
+  s('entRue',d.entRue);s('entCP',d.entCP);s('entVille',d.entVille);
+  s('nbTrav',d.nbTrav);s('entUtil',d.entUtil);
+  s('entUtilRue',d.entUtilRue);s('entUtilCP',d.entUtilCP);s('entUtilVille',d.entUtilVille);
+  if(d.entUtil)document.getElementById('entUtil-addr-block').style.display='block';
+  s('vicNom',d.vicNom);s('vicPrenom',d.vicPrenom);s('vicFonction',d.vicFonction);
+  s('vicRue',d.vicRue);s('vicCP',d.vicCP);s('vicVille',d.vicVille);
+  s('vicAge',d.vicAge);s('vicAnciennete',d.vicAnciennete);s('vicContrat',d.vicContrat);
+  s('dateAccident',d.dateAccident);s('heureAccident',d.heureAccident);
+  s('lesion',d.lesion);s('incapacite',d.incapacite);
+
+  (d.participants||[]).forEach(function(p){addParticipant();var last=document.querySelectorAll('#participants-list .person-card');var el=last[last.length-1];el.querySelector('.pc-nom').value=p.nom||'';el.querySelector('.pc-fonc').value=p.fonc||'';el.querySelector('.pc-org').value=p.org||'';});
+  (d.redacteurs||[]).forEach(function(p){addRedacteur();var last=document.querySelectorAll('#redacteurs-list .person-card');var el=last[last.length-1];el.querySelector('.rd-nom').value=p.nom||'';el.querySelector('.rd-fonc').value=p.fonc||'';el.querySelector('.rd-email').value=p.email||'';});
+
+  s('lieuAdresse',d.lieuAdresse);s('lieuZone',d.lieuZone);s('lieuDesc',d.lieuDesc);
+  sc('lieuPrive',d.lieuPrive);sc('photosDisponibles',d.photosDisponibles);
+  if(d.photosDisponibles)document.getElementById('photos-block').style.display='block';
+  s('photosDesc',d.photosDesc);s('photosSource',d.photosSource);
+  s('faits',d.faits);
+  s('vd_anc',d.vd_anc);s('vd_connait',d.vd_connait);s('vd_precip',d.vd_precip);
+  s('vd_etat',d.vd_etat);s('vd_temoin',d.vd_temoin);s('vd_temoinNom',d.vd_temoinNom);
+  s('vd_epi',d.vd_epi);s('vd_epiDetail',d.vd_epiDetail);s('vd_arda',d.vd_arda);
+  s('vd_proc',d.vd_proc);s('vd_suite',d.vd_suite);s('vd_autres',d.vd_autres);
+  s('emp_nom',d.emp_nom);s('emp_contrat',d.emp_contrat);s('emp_premier',d.emp_premier);
+  s('emp_surcharge',d.emp_surcharge);s('emp_orga',d.emp_orga);s('emp_rel',d.emp_rel);
+  s('emp_secu',d.emp_secu);s('emp_fiche',d.emp_fiche);s('emp_autres',d.emp_autres);
+
+  (d.causesP||[]).forEach(function(c){addCause('p');var last=document.querySelectorAll('#causes-p-list .cause-item input');last[last.length-1].value=c;});
+  (d.causesS||[]).forEach(function(c){addCause('s');var last=document.querySelectorAll('#causes-s-list .cause-item input');last[last.length-1].value=c;});
+  (d.causesT||[]).forEach(function(c){addCause('t');var last=document.querySelectorAll('#causes-t-list .cause-item input');last[last.length-1].value=c;});
+  (d.causesQ||[]).forEach(function(c){addCause('q');var last=document.querySelectorAll('#causes-q-list .cause-item input');last[last.length-1].value=c;});
+  (d.recoImm||[]).forEach(function(r){addReco('imm');var last=document.querySelectorAll('#reco-imm-list textarea');last[last.length-1].value=r;});
+  (d.recoCT||[]).forEach(function(r){addReco('ct');var last=document.querySelectorAll('#reco-ct-list textarea');last[last.length-1].value=r;});
+  (d.recoMT||[]).forEach(function(r){addReco('mt');var last=document.querySelectorAll('#reco-mt-list textarea');last[last.length-1].value=r;});
+  (d.recoMat||[]).forEach(function(r){addReco('mat');var last=document.querySelectorAll('#reco-mat-list textarea');last[last.length-1].value=r;});
+  (d.recoOrg||[]).forEach(function(r){addReco('org');var last=document.querySelectorAll('#reco-org-list textarea');last[last.length-1].value=r;});
+  (d.recoGen||[]).forEach(function(r){addReco('gen');var last=document.querySelectorAll('#reco-gen-list textarea');last[last.length-1].value=r;});
+  if(d.atcNodes&&d.atcNodes.length){atcState.nodes=d.atcNodes;atcState.links=d.atcLinks||[];atcBuildInputs();atcRender();}
+  (d.pa||[]).forEach(function(p){addPA();var last=document.querySelectorAll('#pa-list .pa-row');var ins=last[last.length-1].querySelectorAll('input');ins[0].value=p.action||'';ins[1].value=p.resp||'';ins[2].value=p.delai||'';});
+
+  (d.collabs||[]).forEach(function(p){addCollab();var last=document.querySelectorAll('#collab-list .person-card');var el=last[last.length-1];el.querySelector('.pc-nom').value=p.nom||'';el.querySelector('.pc-fonc').value=p.fonc||'';el.querySelector('.pc-org').value=p.org||'';});
+  (d.auteurs||[]).forEach(function(p){addAuteur();var last=document.querySelectorAll('#auteur-list .person-card');var el=last[last.length-1];el.querySelector('.au-nom').value=p.nom||'';el.querySelector('.au-fonc').value=p.fonc||'';el.querySelector('.au-email').value=p.email||'';});
+
+  s('seNom',d.seNom);s('seAdresse',d.seAdresse);s('seTel',d.seTel);s('seSite',d.seSite);s('seEmail',d.seEmail);
+  (d.distribs||[]).forEach(function(p){addDistrib();var last=document.querySelectorAll('#distrib-list .person-card');var el=last[last.length-1];el.querySelector('.di-nom').value=p.nom||'';el.querySelector('.di-fonc').value=p.fonc||'';el.querySelector('.di-org').value=p.org||'';el.querySelector('.di-adr').value=p.adr||'';el.querySelector('.di-email').value=p.email||'';});
+}
+
+// ─── DATE HELPERS ────────────────────────────────────────────────────────────
+function fmtDate(s){
+  if(!s)return'';
+  var p=s.split('-');
+  if(p.length===3)return parseInt(p[2])+' '+['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][parseInt(p[1])-1]+' '+p[0];
+  return s;
+}
+function getSelText(id){
+  var el=document.getElementById(id);
+  if(!el)return'';
+  return el.options[el.selectedIndex]?el.options[el.selectedIndex].text:'';
+}
+
+// ─── APERÇU HTML ────────────────────────────────────────────────────────────
+function buildPreview(){
+  var d=collectData();
+  var victime=d.vicNom+(d.vicPrenom?' '+d.vicPrenom:'');
+  var html='';
+  html+='<div style="text-align:right;font-size:13px;margin-bottom:12px"><strong>'+(d.ville?d.ville.toUpperCase():'…')+', LE '+fmtDate(d.dateRapport).toUpperCase()+'</strong></div>';
+  html+='<div style="text-align:center;margin:20px 0"><div style="font-size:22px;font-weight:700;color:#D85A30;letter-spacing:.04em">RAPPORT GÉNÉRAL D\'INTERVENTION</div>';
+  html+='<div style="font-size:12px;color:#888;margin-top:4px">(Art. II.3-37 du code du bien-être au travail)</div></div>';
+  html+='<table style="width:100%;font-size:13px;line-height:1.8;margin-bottom:20px"><tbody>';
+  html+='<tr><td style="font-weight:700;width:160px;vertical-align:top">OBJET</td><td>: Analyse « Accident du travail grave »<br>Victime&nbsp;&nbsp; : '+victime+'<br>Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : '+fmtDate(d.dateAccident)+'</td></tr>';
+  html+='<tr><td style="font-weight:700;vertical-align:top">ENTREPRISE</td><td>: '+d.entreprise+'<br>'+d.entRue+'<br>'+d.entCP+' '+d.entVille+'</td></tr>';
+  if(d.entUtil)html+='<tr><td style="font-weight:700;vertical-align:top">ENTREPRISE UTILISATRICE</td><td>: '+d.entUtil+'<br>'+d.entUtilRue+' '+d.entUtilCP+' '+d.entUtilVille+'</td></tr>';
+  html+='<tr><td style="font-weight:700">N° AFFILIATION</td><td>: '+d.affiliation+'</td></tr>';
+  html+='<tr><td style="font-weight:700">ANALYSE</td><td>: '+d.dateAnalyse+'</td></tr>';
+  if(d.participants.length){html+='<tr><td style="font-weight:700;vertical-align:top">PARTICIPANTS</td><td>: ';html+=d.participants.map(function(p){return p.nom+(p.fonc?' ('+p.fonc+')':'')+(p.org?', '+p.org:'')}).join('<br>');html+='</td></tr>';}
+  if(d.redacteurs.length){html+='<tr><td style="font-weight:700;vertical-align:top">RAPPORT RÉDIGÉ PAR</td><td>: ';html+=d.redacteurs.map(function(p){return p.nom+(p.fonc?' ('+p.fonc+')':'')}).join('<br>');html+='</td></tr>';}
+  html+='</tbody></table>';
+
+  html+='<h2>1. Introduction</h2>';
+  html+='<p>Conformément à la réglementation en vigueur concernant les accidents du travail, nous avons effectué une analyse détaillée de l\'accident du travail survenu le '+fmtDate(d.dateAccident)+' et dont la déclaration nous est parvenue le '+fmtDate(d.dateDeclaration)+'.</p>';
+  var modeText={'tel':'Ce rapport a été rédigé sur base des informations collectées lors des entretiens téléphoniques','visite':'Ce rapport a été rédigé sur base des informations collectées lors de la visite en entreprise','mixte':'Ce rapport a été rédigé sur base des informations collectées lors de la visite en entreprise et par entretiens téléphoniques'};
+  html+='<p>'+((modeText[d.modeEnquete])||'Ce rapport a été rédigé sur base des informations collectées')+' du '+d.dateAnalyse+', auprès des personnes qui ont participé à cette enquête.</p>';
+
+  html+='<h2>2. Identification de la victime et de l\'employeur</h2>';
+  html+='<h3>Victime :</h3>';
+  html+='<p>'+victime+'<br>'+d.vicRue+'<br>'+d.vicCP+' '+d.vicVille+'</p>';
+  html+='<p><strong>Âge</strong> : '+d.vicAge+' ans<br><strong>Ancienneté</strong> : '+d.vicAnciennete+'</p>';
+  html+='<p><strong>Lésion</strong> : '+d.lesion+'<br><strong>Incapacité</strong> : '+d.incapacite+'</p>';
+  html+='<h3>Employeur :</h3>';
+  html+='<p>'+d.entreprise+'<br>'+d.entRue+'<br>'+d.entCP+' '+d.entVille+'</p>';
+  if(d.entUtil)html+='<h3>Entreprise utilisatrice :</h3><p>'+d.entUtil+'<br>'+d.entUtilRue+' '+d.entUtilCP+' '+d.entUtilVille+'</p>';
+  html+='<p><strong>Nombre de travailleurs</strong> : '+d.nbTrav+'</p>';
+
+  html+='<h2>3. Description détaillée du lieu de l\'accident</h2>';
+  html+='<p>'+d.lieuAdresse+(d.lieuZone?'.<br>Plus précisément, '+d.lieuZone.toLowerCase()+'.':'.')+'</p>';
+  if(d.lieuPrive)html+='<p><em>(Les informations ont été obtenues seulement par téléphone car l\'accident s\'est produit dans une habitation privée à laquelle nous n\'avons pas accès.)</em></p>';
+  if(d.lieuDesc)html+='<p>'+d.lieuDesc+'</p>';
+
+  html+='<h2>4. Description détaillée des circonstances de l\'accident</h2>';
+  html+='<h3>Les faits :</h3><p>'+d.faits.replace(/\n/g,'<br>')+'</p>';
+  html+='<h3>Les photos :</h3>';
+  if(d.photosDisponibles){
+    html+='<p>'+d.photosDesc.replace(/\n/g,'<br>')+'</p>';
+    if(d.photosSource)html+='<p><em>Photo(s) fournie(s) par '+d.photosSource+'.</em></p>';
+  }else{html+='<p>Aucune photo disponible.</p>';}
+
+  html+='<h3>Éléments complémentaires :</h3>';
+  html+='<p>Suite à notre entretien avec les différentes parties il apparaît que selon :</p>';
+  html+='<p><strong>'+victime+', la victime</strong> :</p><ul>';
+  if(d.vd_anc)html+='<li>'+d.vd_anc+'</li>';
+  var connaitMap={'oui':'La victime connaissait le travail à effectuer.','peu':'La victime connaissait peu le travail à effectuer.','non':'La victime ne connaissait pas ce travail.'};
+  if(d.vd_connait&&connaitMap[d.vd_connait])html+='<li>'+connaitMap[d.vd_connait]+'</li>';
+  var precipMap={'non':'La victime ne travaillait pas dans la précipitation.','oui':'La victime travaillait dans la précipitation.'};
+  if(d.vd_precip&&precipMap[d.vd_precip])html+='<li>'+precipMap[d.vd_precip]+'</li>';
+  var etatMap={'normal':'La victime semblait dans son état normal, n\'était pas sous influence d\'alcool ou de médicaments.','alcool':'La victime était sous influence d\'alcool.','medicaments':'La victime était sous influence de médicaments.'};
+  if(d.vd_etat&&etatMap[d.vd_etat])html+='<li>'+etatMap[d.vd_etat]+'</li>';
+  if(d.dateAccident&&d.heureAccident)html+='<li>L\'accident a eu lieu le '+fmtDate(d.dateAccident)+' à '+d.heureAccident.replace(':','h')+'.</li>';
+  var temoinMap={'non':'Il n\'y a pas de témoin.','oui':'Un ou plusieurs témoins étaient présents'+(d.vd_temoinNom?' : '+d.vd_temoinNom:'.')+'.','indirect':'La clientèle était présente mais n\'a pas été un témoin direct.'};
+  if(d.vd_temoin&&temoinMap[d.vd_temoin])html+='<li>'+temoinMap[d.vd_temoin]+'</li>';
+  var epiMap={'oui_portes':'Les Équipements de Protection Individuelle (EPI) étaient disponibles et portés au moment de l\'accident'+(d.vd_epiDetail?' : '+d.vd_epiDetail:'.')+'.','dispo_non':'Les EPI étaient disponibles mais non portés au moment de l\'accident.','non_dispo':'Les EPI n\'étaient pas disponibles au moment de l\'accident.'};
+  if(d.vd_epi&&epiMap[d.vd_epi])html+='<li>'+epiMap[d.vd_epi]+'</li>';
+  var ardaMap={'non':'L\'analyse des risques n\'a pas été effectuée pour ce type de travail.','oui':'Une analyse des risques a été effectuée pour ce type de travail.'};
+  if(d.vd_arda&&ardaMap[d.vd_arda])html+='<li>'+ardaMap[d.vd_arda]+'</li>';
+  var procMap={'oui':'Il existe une procédure écrite pour ce type de travail.','non':'Il n\'existe pas de procédure écrite pour ce type de travail.','partiel':'Il existe un plan partiel peu détaillé pour ce type de travail.'};
+  if(d.vd_proc&&procMap[d.vd_proc])html+='<li>'+procMap[d.vd_proc]+'</li>';
+  if(d.vd_suite)html+='<li>'+d.vd_suite+'</li>';
+  if(d.vd_autres)html+='<li>'+d.vd_autres+'</li>';
+  html+='</ul>';
+
+  if(d.emp_nom){
+    html+='<p><strong>'+d.emp_nom+' :</strong></p><ul>';
+    var contratMap={'cdi':'La victime est en CDI.','cdd':'La victime est en CDD.','int':'La victime est en contrat intérimaire.','ale':'La victime est sous contrat ALE/Titres-services.'};
+    if(d.emp_contrat&&contratMap[d.emp_contrat])html+='<li>'+contratMap[d.emp_contrat]+'</li>';
+    var premMap={'oui':'C\'est la première fois que ce type d\'accident intervient au sein de l\'entreprise.','non':'Ce type d\'accident s\'est déjà produit au sein de l\'entreprise.'};
+    if(d.emp_premier&&premMap[d.emp_premier])html+='<li>'+premMap[d.emp_premier]+'</li>';
+    html+='<li>Il n\'y avait pas de problème au niveau des ressources de la victime.</li>';
+    var surMap={'non':'Il n\'y avait pas de surcharge de travail au moment de l\'accident.','oui':'Une surcharge de travail a été signalée au moment de l\'accident.'};
+    if(d.emp_surcharge&&surMap[d.emp_surcharge])html+='<li>'+surMap[d.emp_surcharge]+'</li>';
+    var orgMap={'non':'L\'organisation du travail n\'a pas été changée.','oui':'L\'organisation du travail a été modifiée récemment.'};
+    if(d.emp_orga&&orgMap[d.emp_orga])html+='<li>'+orgMap[d.emp_orga]+'</li>';
+    var ficheMap={'oui':'La fiche de poste et la description de fonction existent.','non':'Il n\'existe pas de fiche de poste.'};
+    if(d.emp_fiche&&ficheMap[d.emp_fiche])html+='<li>'+ficheMap[d.emp_fiche]+'</li>';
+    var relMap={'bonnes':'La victime s\'entend très bien avec son employeur et ses collègues.','tensions':'Des tensions ont été signalées entre la victime et ses collègues/employeur.'};
+    if(d.emp_rel&&relMap[d.emp_rel])html+='<li>'+relMap[d.emp_rel]+'</li>';
+    var secMap={'ok':'Il n\'y avait pas de problème au niveau du climat de sécurité.','pb':'Des problèmes de sécurité ont été signalés.'};
+    if(d.emp_secu&&secMap[d.emp_secu])html+='<li>'+secMap[d.emp_secu]+'</li>';
+    if(d.emp_autres)html+='<li>'+d.emp_autres+'</li>';
+    html+='</ul>';
+  }
+
+  html+='<h2>5. Causes primaires, secondaires et tertiaires</h2>';
+  html+='<p><strong>Primaires</strong> (c\'est-à-dire les faits matériels qui ont rendu l\'accident possible) :</p><ul>';
+  if(d.causesP.length)d.causesP.forEach(function(c){if(c)html+='<li>'+c+'</li>'});
+  else html+='<li>/</li>';
+  html+='</ul>';
+  html+='<p><strong>Secondaires</strong> (c\'est-à-dire les causes de nature organisationnelle en raison desquelles les causes primaires sont apparues) :</p><ul>';
+  if(d.causesS.length)d.causesS.forEach(function(c){if(c)html+='<li>'+c+'</li>'});
+  else html+='<li>/</li>';
+  html+='</ul>';
+  html+='<p><strong>Tertiaires</strong> (c\'est-à-dire les causes matérielles ou organisationnelles qui se situent chez des tiers) :</p><ul>';
+  if(d.causesT.length)d.causesT.forEach(function(c){if(c)html+='<li>'+c+'</li>'});
+  else html+='<li>/</li>';
+  html+='</ul>';
+
+  html+='<h2>6. Recommandations visant à prévenir la répétition de l\'accident</h2>';
+  html+='<h3>Recommandations matérielles</h3><ul>';
+  if(d.recoMat.length)d.recoMat.forEach(function(r){if(r)html+='<li>'+r+'</li>'});
+  else html+='<li>/</li>';
+  html+='</ul>';
+  html+='<h3>Recommandations organisationnelles</h3><ul>';
+  if(d.recoOrg.length)d.recoOrg.forEach(function(r){if(r)html+='<li>'+r+'</li>'});
+  else html+='<li>/</li>';
+  html+='</ul>';
+  html+='<h3>Recommandations générales (Analyse des risques)</h3><ul>';
+  html+='<li>Nous vous recommandons de réaliser une analyse des risques professionnels pour chacun des postes de travail en tenant compte des différentes étapes des opérations. Cette démarche constitue l\'étape clé d\'une démarche de prévention efficace. Elle comporte quatre phases : préparation de l\'évaluation ; identification des risques ; classement des facteurs de risques ; propositions de mesures de prévention. Les mesures seront ensuite intégrées dans le plan global de prévention et le plan annuel d\'actions. <em>(Code du Bien-Être, Livre I, Titre 2)</em></li>';
+  html+='<li>Mettre à jour votre plan global de prévention et le plan annuel d\'action.</li>';
+  if(d.recoGen.length)d.recoGen.forEach(function(r){if(r)html+='<li>'+r+'</li>'});
+  html+='</ul>';
+
+  html+='<h2>7. Identification des personnes qui ont collaboré à l\'analyse</h2><ul>';
+  d.collabs.forEach(function(p){if(p.nom)html+='<li>'+p.nom+(p.fonc?', '+p.fonc:'')+(p.org?' ('+p.org+')':'')+'</li>'});
+  html+='</ul>';
+
+  html+='<h2>8. Identification de la personne qui a élaboré ce rapport</h2>';
+  d.auteurs.forEach(function(p){html+='<p>'+p.nom+(p.fonc?', '+p.fonc:'')+(p.email?'<br>'+p.email:'')+'</p>'});
+  html+='<p>'+d.seNom+(d.seAdresse?'<br>'+d.seAdresse:'')+(d.seTel?'<br>Tél. : '+d.seTel:'')+(d.seSite?'<br>'+d.seSite:'')+'</p>';
+
+  html+='<h2>9. Identification des personnes à qui une copie de ce rapport a été envoyée</h2>';
+  d.distribs.forEach(function(p){
+    html+='<p>▶ '+p.nom+(p.fonc?', '+p.fonc:'')+(p.org?'<br><strong>'+p.org+'</strong>':'')+(p.adr?'<br>'+p.adr:'')+(p.email?'<br>E-mail : '+p.email:'')+'</p>';
+  });
+
+  document.getElementById('preview-box').innerHTML=html;
+  document.getElementById('preview-container').style.display='block';
+  document.getElementById('preview-container').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── EXPORT WORD ─────────────────────────────────────────────────────────────
+async function exportWord(){
+  if(typeof docx==='undefined'){alert('Bibliothèque docx non chargée. Vérifiez votre connexion Internet.');return;}
+  var atcImg=await new Promise(function(res){atcGetImageDataURL(res);});
+  var d=collectData();
+  var victime=d.vicNom+(d.vicPrenom?' '+d.vicPrenom:'');
+
+  var P=docx.Paragraph, R=docx.TextRun, TL=docx.HeadingLevel;
+
+  function bold(txt){return new R({text:txt,bold:true})}
+  function txt(t){return new R({text:t})}
+  function para(children,opts){return new P(Object.assign({children:children},opts||{}))}
+  function h1(t){return new P({text:t,heading:TL.HEADING_1,spacing:{before:360,after:120}})}
+  function h2(t){return new P({text:t,heading:TL.HEADING_2,spacing:{before:240,after:80}})}
+  function bul(t){return new P({text:t,bullet:{level:0},spacing:{after:40}})}
+  function sp(){return new P({text:''})}
+
+  var connaitMap={'oui':'La victime connaissait le travail à effectuer.','peu':'La victime connaissait peu le travail à effectuer.','non':'La victime ne connaissait pas ce travail.'};
+  var precipMap={'non':'La victime ne travaillait pas dans la précipitation.','oui':'La victime travaillait dans la précipitation.'};
+  var etatMap={'normal':'La victime semblait dans son état normal, n\'était pas sous influence d\'alcool ou de médicaments.','alcool':'La victime était sous influence d\'alcool.','medicaments':'La victime était sous influence de médicaments.'};
+  var temoinMap={'non':'Il n\'y a pas de témoin.','oui':'Témoin(s) présent(s)'+(d.vd_temoinNom?' : '+d.vd_temoinNom:'.')+'.',indirect:'La clientèle était présente mais n\'a pas été un témoin direct.'};
+  var epiMap={'oui_portes':'Les Équipements de Protection Individuelle (EPI) étaient disponibles et portés au moment de l\'accident'+(d.vd_epiDetail?' : '+d.vd_epiDetail:'.')+'.','dispo_non':'Les EPI étaient disponibles mais non portés.','non_dispo':'Les EPI n\'étaient pas disponibles.'};
+  var ardaMap={'non':'L\'analyse des risques n\'a pas été effectuée pour ce type de travail.','oui':'Une analyse des risques a été effectuée pour ce type de travail.'};
+  var procMap={'oui':'Il existe une procédure écrite pour ce type de travail.','non':'Il n\'existe pas de procédure écrite pour ce type de travail.','partiel':'Il existe un plan partiel peu détaillé.'};
+  var contratMap={'cdi':'La victime est en CDI.','cdd':'La victime est en CDD.','int':'La victime est en contrat intérimaire.','ale':'La victime est sous contrat ALE/Titres-services.'};
+  var premMap={'oui':'C\'est la première fois que ce type d\'accident intervient au sein de l\'entreprise.','non':'Ce type d\'accident s\'est déjà produit.'};
+  var surMap={'non':'Il n\'y avait pas de surcharge de travail au moment de l\'accident.','oui':'Une surcharge de travail a été signalée.'};
+  var orgMap={'non':'L\'organisation du travail n\'a pas été changée.','oui':'L\'organisation du travail a été modifiée récemment.'};
+  var ficheMap={'oui':'La fiche de poste et la description de fonction existent.','non':'Il n\'existe pas de fiche de poste.'};
+  var relMap={'bonnes':'La victime s\'entend très bien avec son employeur et ses collègues.','tensions':'Des tensions ont été signalées.'};
+  var secMap={'ok':'Il n\'y avait pas de problème au niveau du climat de sécurité.','pb':'Des problèmes de sécurité ont été signalés.'};
+
+  var children=[];
+
+  // Page de couverture
+  children.push(para([txt((d.ville?d.ville.toUpperCase():'…')+', LE '+fmtDate(d.dateRapport).toUpperCase())],{alignment:docx.AlignmentType.RIGHT}));
+  children.push(sp());
+  children.push(para([new R({text:'RAPPORT GÉNÉRAL D\'INTERVENTION',bold:true,size:52,color:'C04028'})],{alignment:docx.AlignmentType.CENTER,spacing:{before:400,after:120}}));
+  children.push(para([new R({text:'(Art. II.3-37 du code du bien-être au travail)',italics:true,size:24,color:'888888'})],{alignment:docx.AlignmentType.CENTER,spacing:{after:400}}));
+
+  function covRow(label,value){
+    children.push(para([bold(label),txt('  :  '+value)],{spacing:{after:80}}));
+  }
+  covRow('OBJET','Analyse « Accident du travail grave »');
+  children.push(para([txt('        Victime  :  '+victime)],{spacing:{after:40}}));
+  children.push(para([txt('        Date     :  '+fmtDate(d.dateAccident))],{spacing:{after:200}}));
+  covRow('ENTREPRISE',d.entreprise+'\n'+d.entRue+'\n'+d.entCP+' '+d.entVille);
+  if(d.entUtil)covRow('ENTREPRISE UTILISATRICE',d.entUtil+'\n'+d.entUtilRue+' '+d.entUtilCP+' '+d.entUtilVille);
+  covRow('N° AFFILIATION',d.affiliation);
+  covRow('ANALYSE',d.dateAnalyse);
+  if(d.participants.length)covRow('PARTICIPANTS',d.participants.map(function(p){return p.nom+(p.fonc?' ('+p.fonc+')':'')+(p.org?', '+p.org:'')}).join('\n        '));
+  if(d.redacteurs.length)covRow('RAPPORT RÉDIGÉ PAR',d.redacteurs.map(function(p){return p.nom+(p.fonc?' ('+p.fonc+')':'')}).join('\n        '));
+  children.push(sp());children.push(sp());
+
+  // Section 1
+  children.push(h1('1.  Introduction'));
+  children.push(para([txt('Conformément à la réglementation en vigueur concernant les accidents du travail, nous avons effectué une analyse détaillée de l\'accident du travail survenu le '+fmtDate(d.dateAccident)+' et dont la déclaration nous est parvenue le '+fmtDate(d.dateDeclaration)+'.')],{spacing:{after:80}}));
+  var modeText2={'tel':'Ce rapport a été rédigé sur base des informations collectées lors des entretiens téléphoniques','visite':'Ce rapport a été rédigé sur base des informations collectées lors de la visite en entreprise','mixte':'Ce rapport a été rédigé sur base des informations collectées lors de la visite en entreprise et par entretiens téléphoniques'};
+  children.push(para([txt(((modeText2[d.modeEnquete])||'Ce rapport a été rédigé sur base des informations collectées')+' du '+d.dateAnalyse+', auprès des personnes qui ont participé à cette enquête.')],{spacing:{after:200}}));
+
+  // Section 2
+  children.push(h1('2.  Identification de la victime et de l\'employeur'));
+  children.push(para([bold('Victime :')],{spacing:{after:60}}));
+  children.push(para([txt(victime)],{}));
+  children.push(para([txt(d.vicRue)],{}));
+  children.push(para([txt(d.vicCP+' '+d.vicVille)],{spacing:{after:80}}));
+  children.push(para([bold('Âge'),txt(' : '+d.vicAge+' ans')],{}));
+  children.push(para([bold('Ancienneté'),txt(' : '+d.vicAnciennete)],{spacing:{after:80}}));
+  children.push(para([bold('Lésion'),txt(' : '+d.lesion)],{}));
+  children.push(para([bold('Incapacité'),txt(' : '+d.incapacite)],{spacing:{after:160}}));
+  children.push(para([bold('Employeur :')],{spacing:{after:60}}));
+  children.push(para([txt(d.entreprise)],{}));
+  children.push(para([txt(d.entRue)],{}));
+  children.push(para([txt(d.entCP+' '+d.entVille)],{spacing:{after:80}}));
+  if(d.entUtil){
+    children.push(para([bold('Entreprise utilisatrice :')],{spacing:{after:60}}));
+    children.push(para([txt(d.entUtil)],{}));
+    children.push(para([txt(d.entUtilRue+' '+d.entUtilCP+' '+d.entUtilVille)],{spacing:{after:80}}));
+  }
+  children.push(para([bold('Nombre des travailleurs'),txt(' : '+d.nbTrav)],{spacing:{after:200}}));
+
+  // Section 3
+  children.push(h1('3.  Description détaillée du lieu de l\'accident'));
+  children.push(para([txt(d.lieuAdresse+(d.lieuZone?'\nPlus précisément, '+d.lieuZone+'.':''))],{spacing:{after:100}}));
+  if(d.lieuPrive)children.push(para([new R({text:'(Les informations ont été obtenues seulement par téléphone car l\'accident s\'est produit dans une habitation privée à laquelle nous n\'avons pas accès.)',italics:true})],{spacing:{after:100}}));
+  if(d.lieuDesc)children.push(para([txt(d.lieuDesc)],{spacing:{after:200}}));
+
+  // Section 4
+  children.push(h1('4.  Description détaillée des circonstances de l\'accident'));
+  children.push(h2('Les faits :'));
+  var faitsLines=d.faits.split('\n');
+  faitsLines.forEach(function(line){children.push(para([txt(line)],{spacing:{after:60}}))});
+  children.push(sp());
+  children.push(h2('Les photos :'));
+  if(d.photosDisponibles){
+    d.photosDesc.split('\n').forEach(function(line){if(line)children.push(para([txt(line)],{spacing:{after:60}}))});
+    if(d.photosSource)children.push(para([new R({text:'Photo(s) fournie(s) par '+d.photosSource+'.',italics:true})],{spacing:{after:100}}));
+  }else{
+    children.push(para([new R({text:'Aucune photo disponible.',italics:true})],{spacing:{after:100}}));
+  }
+  children.push(h2('Éléments complémentaires :'));
+  children.push(para([txt('Suite à notre entretien avec les différentes parties il apparaît que selon :')],{spacing:{after:80}}));
+  children.push(para([bold(victime+', la victime :')],{spacing:{after:60}}));
+  if(d.vd_anc)children.push(bul(d.vd_anc));
+  if(d.vd_connait&&connaitMap[d.vd_connait])children.push(bul(connaitMap[d.vd_connait]));
+  if(d.vd_precip&&precipMap[d.vd_precip])children.push(bul(precipMap[d.vd_precip]));
+  if(d.vd_etat&&etatMap[d.vd_etat])children.push(bul(etatMap[d.vd_etat]));
+  if(d.dateAccident&&d.heureAccident)children.push(bul('L\'accident a eu lieu le '+fmtDate(d.dateAccident)+' à '+d.heureAccident.replace(':','h')+'.'));
+  if(d.vd_temoin&&temoinMap[d.vd_temoin])children.push(bul(temoinMap[d.vd_temoin]));
+  if(d.vd_epi&&epiMap[d.vd_epi])children.push(bul(epiMap[d.vd_epi]));
+  if(d.vd_arda&&ardaMap[d.vd_arda])children.push(bul(ardaMap[d.vd_arda]));
+  if(d.vd_proc&&procMap[d.vd_proc])children.push(bul(procMap[d.vd_proc]));
+  if(d.vd_suite)children.push(bul(d.vd_suite));
+  if(d.vd_autres)children.push(bul(d.vd_autres));
+  if(d.emp_nom){
+    children.push(sp());
+    children.push(para([bold(d.emp_nom+' :')],{spacing:{after:60}}));
+    if(d.emp_contrat&&contratMap[d.emp_contrat])children.push(bul(contratMap[d.emp_contrat]));
+    if(d.emp_premier&&premMap[d.emp_premier])children.push(bul(premMap[d.emp_premier]));
+    children.push(bul('Il n\'y avait pas de problème au niveau des ressources de la victime.'));
+    if(d.emp_surcharge&&surMap[d.emp_surcharge])children.push(bul(surMap[d.emp_surcharge]));
+    if(d.emp_orga&&orgMap[d.emp_orga])children.push(bul(orgMap[d.emp_orga]));
+    if(d.emp_fiche&&ficheMap[d.emp_fiche])children.push(bul(ficheMap[d.emp_fiche]));
+    if(d.emp_rel&&relMap[d.emp_rel])children.push(bul(relMap[d.emp_rel]));
+    if(d.emp_secu&&secMap[d.emp_secu])children.push(bul(secMap[d.emp_secu]));
+    if(d.emp_autres)children.push(bul(d.emp_autres));
+  }
+  children.push(sp());
+
+  // Section 5
+  children.push(h1('5.  Causes primaires, secondaires et tertiaires'));
+  children.push(para([bold('Primaires'),txt(' (c\'est-à-dire les faits matériels qui ont rendu l\'accident possible) :')],{spacing:{after:60}}));
+  if(d.causesP.length&&d.causesP[0])d.causesP.forEach(function(c){if(c)children.push(bul(c))});
+  else children.push(bul('/'));
+  children.push(sp());
+  children.push(para([bold('Secondaires'),txt(' (c\'est-à-dire les causes de nature organisationnelle en raison desquelles les causes primaires sont apparues) :')],{spacing:{after:60}}));
+  if(d.causesS.length&&d.causesS[0])d.causesS.forEach(function(c){if(c)children.push(bul(c))});
+  else children.push(bul('/'));
+  children.push(sp());
+  children.push(para([bold('Tertiaires'),txt(' (c\'est-à-dire les causes matérielles ou organisationnelles qui se situent chez des tiers) :')],{spacing:{after:60}}));
+  if(d.causesT.length&&d.causesT[0])d.causesT.forEach(function(c){if(c)children.push(bul(c))});
+  else children.push(bul('/'));
+  children.push(sp());
+
+  // Section 6
+  children.push(h1('6.  Recommandations visant à prévenir la répétition de l\'accident'));
+  children.push(h2('Recommandations matérielles'));
+  if(d.recoMat.length&&d.recoMat[0])d.recoMat.forEach(function(r){if(r)children.push(bul(r))});
+  else children.push(bul('/'));
+  children.push(h2('Recommandations organisationnelles'));
+  if(d.recoOrg.length&&d.recoOrg[0])d.recoOrg.forEach(function(r){if(r)children.push(bul(r))});
+  else children.push(bul('/'));
+  children.push(h2('Recommandations générales (Analyse des risques)'));
+  children.push(bul('Nous vous recommandons de réaliser une analyse des risques professionnels pour chacun des postes de travail en tenant compte des différentes étapes des opérations. Cette démarche constitue l\'étape clé d\'une démarche de prévention efficace. Destinée à mieux connaître et à mieux maîtriser les risques encourus par vos travailleurs, elle vous permettra de disposer des éléments adaptés à la prise de mesures de prévention. Cette analyse comporte quatre phases successives :'));
+  children.push(new P({text:'Préparation de l\'évaluation ;',bullet:{level:1}}));
+  children.push(new P({text:'Identification des risques ;',bullet:{level:1}}));
+  children.push(new P({text:'Classement des facteurs de risques ;',bullet:{level:1}}));
+  children.push(new P({text:'Propositions de mesures de prévention. Les mesures de prévention à mettre en place seront ensuite intégrées dans le plan global de prévention et dans le plan annuel d\'actions. (Code du Bien-Être, Livre I, Titre 2)',bullet:{level:1}}));
+  children.push(bul('Mettre à jour votre plan global de prévention et le plan annuel d\'action.'));
+  if(d.recoGen.length&&d.recoGen[0])d.recoGen.forEach(function(r){if(r)children.push(bul(r))});
+  children.push(sp());
+
+  // Section 7
+  children.push(h1('7.  Identification des personnes qui ont collaboré à l\'analyse'));
+  d.collabs.forEach(function(p){if(p.nom)children.push(bul(p.nom+(p.fonc?', '+p.fonc:'')+(p.org?' ('+p.org+')':'')))});
+  children.push(sp());
+
+  // Section 8
+  children.push(h1('8.  Identification de la personne qui a élaboré ce rapport'));
+  d.auteurs.forEach(function(p){
+    children.push(para([txt(p.nom+(p.fonc?', '+p.fonc:''))],{spacing:{after:40}}));
+    if(p.email)children.push(para([new R({text:p.email,color:'1A5276'})],{spacing:{after:80}}));
+  });
+  children.push(para([txt(d.seNom)],{spacing:{after:40}}));
+  if(d.seAdresse)children.push(para([txt(d.seAdresse)],{spacing:{after:40}}));
+  if(d.seTel)children.push(para([txt('Tél. : '+d.seTel)],{spacing:{after:40}}));
+  if(d.seSite)children.push(para([txt(d.seSite)],{spacing:{after:120}}));
+  children.push(sp());
+
+  // Section 9
+  children.push(h1('9.  Identification des personnes à qui une copie de ce rapport a été envoyée'));
+  d.distribs.forEach(function(p){
+    children.push(para([bold('▶ '+p.nom+(p.fonc?', '+p.fonc:''))],{spacing:{before:120,after:40}}));
+    if(p.org)children.push(para([bold(p.org)],{spacing:{after:40}}));
+    if(p.adr)children.push(para([txt(p.adr)],{spacing:{after:40}}));
+    if(p.email)children.push(para([txt('E-mail : '),new R({text:p.email,color:'1A5276'})],{spacing:{after:80}}));
+  });
+
+  // Annexe : Arbre des causes (image SVG → PNG)
+  if(atcImg){
+    children.push(sp());
+    children.push(h1('Annexe — Arbre des causes (Méthode INRS)'));
+    try{
+      var b64=atcImg.dataURL.replace('data:image/png;base64,','');
+      var binStr=atob(b64);
+      var bytes=new Uint8Array(binStr.length);
+      for(var bi=0;bi<binStr.length;bi++)bytes[bi]=binStr.charCodeAt(bi);
+      var imgW=Math.min(500,atcImg.width);
+      var imgH=Math.round(imgW*atcImg.height/atcImg.width);
+      children.push(new P({children:[new docx.ImageRun({data:bytes,transformation:{width:imgW,height:imgH}})]}));
+    }catch(imgErr){children.push(para([txt('(Image de l\'arbre des causes non disponible)')]));}
+  }
+
+  var doc=new docx.Document({
+    creator:'Nexum Advisory',
+    title:'Rapport ATG — '+victime,
+    description:'Rapport général d\'intervention FOR-GR-103',
+    styles:{
+      paragraphStyles:[
+        {id:'Heading1',name:'Heading 1',basedOn:'Normal',run:{bold:true,size:32,color:'C04028'},paragraph:{spacing:{before:360,after:120}}},
+        {id:'Heading2',name:'Heading 2',basedOn:'Normal',run:{bold:true,size:26,color:'4A1B0C'},paragraph:{spacing:{before:200,after:80}}}
+      ]
+    },
+    sections:[{
+      properties:{page:{margin:{top:1080,right:1080,bottom:1080,left:1080}}},
+      children:children
+    }]
+  });
+
+  docx.Packer.toBlob(doc).then(function(blob){
+    var a=document.createElement('a');
+    var vic=(d.vicNom||'rapport').replace(/[^a-zA-Z0-9]/g,'_');
+    var dat=d.dateAccident||'';
+    a.href=URL.createObjectURL(blob);
+    a.download='RAPPORT_ATG_'+vic+'_'+dat+'.docx';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+}
+
+// ─── JSON EXPORT / IMPORT ────────────────────────────────────────────────────
+function exportJSON(){
+  var d=collectData();
+  var json=JSON.stringify(d,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='ATG_Nexum_'+(d.entreprise||'rapport').replace(/[^a-zA-Z0-9]/g,'_')+'.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importJSON(){document.getElementById('fileInput').click();}
+function loadJSON(e){
+  var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    try{
+      var d=JSON.parse(ev.target.result);
+      restoreData(d);
+      autosave();
+      alert('Données chargées avec succès.');
+    }catch(err){alert('Erreur lors du chargement du fichier JSON.');}
+  };
+  r.readAsText(f);
+  e.target.value='';
+}
+function clearAll(){
+  if(!confirm('Effacer toutes les données de ce rapport ? Cette action est irréversible.'))return;
+  localStorage.removeItem('atg_nexum_v1');
+  location.reload();
+}
+
+// ─── INIT AUTOSAVE ON FIELDS ─────────────────────────────────────────────────
+document.querySelectorAll('input,select,textarea').forEach(function(el){
+  el.addEventListener('input',autosave);
+  el.addEventListener('change',autosave);
+});
+
+// ─── RESTORE ON LOAD ─────────────────────────────────────────────────────────
+(function(){
+  var stored=localStorage.getItem('atg_nexum_v1');
+  if(stored){
+    try{var d=JSON.parse(stored);restoreData(d);}catch(e){}
+  }
+  // Set today as default report date if empty
+  var dr=document.getElementById('dateRapport');
+  if(dr&&!dr.value){var today=new Date();dr.value=today.toISOString().split('T')[0];}
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     ARBRE DES CAUSES — CONSTRUCTEUR VISUEL (méthode INRS)
+══════════════════════════════════════════════════════════════════ -->
+<script>
+// ─── CONSTANTES ──────────────────────────────────────────────────────────────
+var ATC_NODE_W=180,ATC_NODE_H=46,ATC_NODE_RX=10;
+var ATC_COL_CX=[134,400,666]; // x-centre par colonne dans un SVG de 800px (3×267px)
+var ATC_COL_COLORS=['#1D4ED8','#2563EB','#DC2626'];
+
+// ─── ÉTAT ─────────────────────────────────────────────────────────────────────
+var atcState={
+  nodes:[],links:[],nodeCounter:0,linkCounter:0,
+  selectedNode:null,dragging:null,dragOffset:{x:0,y:0},
+  connecting:false,connectSource:null
+};
+
+// ─── UTILITAIRES SVG ─────────────────────────────────────────────────────────
+function atcSVGEl(tag){return document.createElementNS('http://www.w3.org/2000/svg',tag);}
+
+function atcGetSVGPt(e){
+  var svg=document.getElementById('atc-svg');
+  if(!svg)return{x:0,y:0};
+  var pt=svg.createSVGPoint();
+  pt.x=e.clientX;pt.y=e.clientY;
+  try{return pt.matrixTransform(svg.getScreenCTM().inverse());}
+  catch(err){return{x:0,y:0};}
+}
+
+function atcNodeAtPoint(pt){
+  return atcState.nodes.find(function(n){
+    return pt.x>=n.x&&pt.x<=n.x+ATC_NODE_W&&pt.y>=n.y&&pt.y<=n.y+ATC_NODE_H;
+  });
+}
+
+function atcWrapText(str,maxChars){
+  var words=(str||'Nœud').split(' ');
+  var lines=[],line='';
+  words.forEach(function(w){
+    if(line&&(line+w).length>maxChars){lines.push(line.trim());line=w+' ';}
+    else{line+=w+' ';}
+  });
+  if(line.trim())lines.push(line.trim());
+  return lines.slice(0,3);
+}
+
+// ─── RENDU SVG ───────────────────────────────────────────────────────────────
+function atcRender(){
+  var svg=document.getElementById('atc-svg');
+  if(!svg)return;
+  // Calcul hauteur SVG
+  var counts=[0,0,0];
+  atcState.nodes.forEach(function(n){counts[n.col]=(counts[n.col]||0)+1;});
+  var maxN=Math.max(counts[0],counts[1],counts[2],1);
+  var svgH=Math.max(160,maxN*(ATC_NODE_H+24)+56);
+  var svgW=800;
+  svg.setAttribute('width',svgW);
+  svg.setAttribute('height',svgH);
+  // Mettre à jour les guides verticaux
+  ['atc-guide-1','atc-guide-2'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.setAttribute('y2',svgH);
+  });
+  // Vider les calques
+  var lL=document.getElementById('atc-links-layer');
+  var nL=document.getElementById('atc-nodes-layer');
+  while(lL&&lL.firstChild)lL.removeChild(lL.firstChild);
+  while(nL&&nL.firstChild)nL.removeChild(nL.firstChild);
+  if(!lL||!nL)return;
+  // Dessiner les liaisons
+  atcState.links.forEach(function(lnk){
+    var src=atcState.nodes.find(function(n){return n.id===lnk.from;});
+    var tgt=atcState.nodes.find(function(n){return n.id===lnk.to;});
+    if(!src||!tgt)return;
+    var x1=src.x+ATC_NODE_W,y1=src.y+ATC_NODE_H/2;
+    var x2=tgt.x,y2=tgt.y+ATC_NODE_H/2;
+    var cx=Math.max(30,Math.abs(x2-x1)*0.42);
+    var path=atcSVGEl('path');
+    path.setAttribute('d','M'+x1+','+y1+' C'+(x1+cx)+','+y1+' '+(x2-cx)+','+y2+' '+x2+','+y2);
+    path.setAttribute('stroke','#475569');
+    path.setAttribute('stroke-width','2');
+    path.setAttribute('fill','none');
+    path.setAttribute('marker-end','url(#atc-arrow)');
+    path.setAttribute('data-lid',lnk.id);
+    path.setAttribute('class','atc-link');
+    path.style.cursor='pointer';
+    lL.appendChild(path);
+  });
+  // Dessiner les nœuds
+  atcState.nodes.forEach(function(node){
+    var color=ATC_COL_COLORS[node.col]||'#3b82f6';
+    var isSel=node.id===atcState.selectedNode;
+    var isSrc=atcState.connecting&&atcState.connectSource===node.id;
+    var g=atcSVGEl('g');
+    g.setAttribute('transform','translate('+node.x+','+node.y+')');
+    g.setAttribute('data-id',node.id);
+    g.setAttribute('class','atc-node');
+    g.style.cursor='grab';
+    // Ombre
+    var sh=atcSVGEl('rect');
+    sh.setAttribute('width',ATC_NODE_W);sh.setAttribute('height',ATC_NODE_H);
+    sh.setAttribute('rx',ATC_NODE_RX);sh.setAttribute('fill','rgba(0,0,0,.18)');
+    sh.setAttribute('transform','translate(2,3)');sh.setAttribute('pointer-events','none');
+    g.appendChild(sh);
+    // Rectangle principal
+    var rect=atcSVGEl('rect');
+    rect.setAttribute('width',ATC_NODE_W);rect.setAttribute('height',ATC_NODE_H);
+    rect.setAttribute('rx',ATC_NODE_RX);rect.setAttribute('fill',color);
+    rect.setAttribute('stroke',isSel?'#EF9F27':isSrc?'#34D399':'rgba(255,255,255,.25)');
+    rect.setAttribute('stroke-width',isSel||isSrc?'3':'1');
+    g.appendChild(rect);
+    // Texte (avec retour à la ligne)
+    var lines=atcWrapText(node.label,22);
+    var lh=13,tot=lines.length*lh;
+    var ty=(ATC_NODE_H-tot)/2+lh-1;
+    lines.forEach(function(line,li){
+      var t=atcSVGEl('text');
+      t.setAttribute('x',ATC_NODE_W/2);t.setAttribute('y',ty+li*lh);
+      t.setAttribute('text-anchor','middle');t.setAttribute('fill','#fff');
+      t.setAttribute('font-size','11');t.setAttribute('font-family','Arial,sans-serif');
+      t.setAttribute('font-weight','600');t.setAttribute('pointer-events','none');
+      t.textContent=line;
+      g.appendChild(t);
+    });
+    // Port de sortie (cercle blanc à droite)
+    var port=atcSVGEl('circle');
+    port.setAttribute('cx',ATC_NODE_W);port.setAttribute('cy',ATC_NODE_H/2);
+    port.setAttribute('r','7');port.setAttribute('fill','#fff');
+    port.setAttribute('stroke',color);port.setAttribute('stroke-width','2');
+    port.setAttribute('class','atc-port-out');
+    port.style.cursor='crosshair';
+    g.appendChild(port);
+    nL.appendChild(g);
+  });
+}
+
+// ─── COLONNES D'ENTRÉE ───────────────────────────────────────────────────────
+function atcBuildInputs(){
+  [0,1,2].forEach(function(col){
+    var container=document.getElementById('atc-inputs-'+col);
+    if(!container)return;
+    while(container.firstChild)container.removeChild(container.firstChild);
+    atcState.nodes.filter(function(n){return n.col===col;}).forEach(function(node){
+      atcMakeInputRow(node,container);
+    });
+    if(col===2){
+      var w=document.getElementById('atc-add-ult-wrap');
+      if(w)w.style.display=atcState.nodes.filter(function(n){return n.col===2;}).length?'none':'block';
+    }
+  });
+}
+
+function atcMakeInputRow(node,container){
+  var row=document.createElement('div');
+  row.className='atc-node-row';
+  row.setAttribute('data-nid',node.id);
+  var inp=document.createElement('input');
+  inp.type='text';inp.value=node.label;inp.placeholder='Libellé…';
+  inp.setAttribute('data-nid',node.id);
+  inp.oninput=function(){
+    var n=atcState.nodes.find(function(x){return x.id===node.id;});
+    if(n){n.label=this.value;atcRender();autosave();}
+  };
+  var del=document.createElement('button');
+  del.className='atc-del';del.innerHTML='✕';del.title='Supprimer';
+  del.onclick=function(){atcRemoveNode(node.id);};
+  row.appendChild(inp);row.appendChild(del);
+  container.appendChild(row);
+}
+
+function atcAddNode(col){
+  var id='n'+(++atcState.nodeCounter);
+  var colNodes=atcState.nodes.filter(function(n){return n.col===col;});
+  var nx=ATC_COL_CX[col]-ATC_NODE_W/2;
+  var ny=36+colNodes.length*(ATC_NODE_H+22);
+  atcState.nodes.push({id:id,label:'',col:col,x:nx,y:ny});
+  var container=document.getElementById('atc-inputs-'+col);
+  if(container){
+    var node=atcState.nodes[atcState.nodes.length-1];
+    atcMakeInputRow(node,container);
+    var inp=container.querySelector('[data-nid="'+id+'"]');
+    if(inp)setTimeout(function(){inp.focus();},0);
+  }
+  if(col===2){var w=document.getElementById('atc-add-ult-wrap');if(w)w.style.display='none';}
+  atcRender();autosave();
+}
+
+function atcRemoveNode(id){
+  atcState.nodes=atcState.nodes.filter(function(n){return n.id!==id;});
+  atcState.links=atcState.links.filter(function(l){return l.from!==id&&l.to!==id;});
+  if(atcState.selectedNode===id)atcState.selectedNode=null;
+  atcBuildInputs();atcRender();autosave();
+}
+
+function atcAutoLayout(){
+  [0,1,2].forEach(function(col){
+    var cn=atcState.nodes.filter(function(n){return n.col===col;});
+    var sp=ATC_NODE_H+22;
+    var tot=cn.length*sp-22;
+    var svgH=Math.max(160,parseInt(document.getElementById('atc-svg').getAttribute('height')||200));
+    var sy=Math.max(36,(svgH-tot)/2);
+    cn.forEach(function(n,i){n.x=ATC_COL_CX[col]-ATC_NODE_W/2;n.y=sy+i*sp;});
+  });
+  atcRender();autosave();
+}
+
+function atcClearLinks(){
+  if(atcState.links.length&&!confirm('Effacer toutes les liaisons ?'))return;
+  atcState.links=[];atcRender();autosave();
+}
+
+function atcClear(){
+  if((atcState.nodes.length||atcState.links.length)&&!confirm('Effacer tout l\'arbre des causes ?'))return;
+  atcState.nodes=[];atcState.links=[];atcState.nodeCounter=0;atcState.linkCounter=0;
+  atcBuildInputs();atcRender();autosave();
+}
+
+function atcExportPNG(){
+  var svgEl=document.getElementById('atc-svg');if(!svgEl)return;
+  var clone=svgEl.cloneNode(true);
+  var svgData=new XMLSerializer().serializeToString(clone);
+  var blob=new Blob([svgData],{type:'image/svg+xml;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var img=new Image();
+  img.onload=function(){
+    var sc=2,canvas=document.createElement('canvas');
+    canvas.width=svgEl.width.baseVal.value*sc;canvas.height=svgEl.height.baseVal.value*sc;
+    var ctx=canvas.getContext('2d');
+    ctx.scale(sc,sc);ctx.fillStyle='#F8FBFF';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(img,0,0);URL.revokeObjectURL(url);
+    var a=document.createElement('a');a.download='arbre_causes_ATG.png';
+    a.href=canvas.toDataURL('image/png');a.click();
+  };
+  img.src=url;
+}
+
+function atcGetImageDataURL(callback){
+  var svgEl=document.getElementById('atc-svg');
+  if(!svgEl||!atcState.nodes.length){callback(null);return;}
+  var clone=svgEl.cloneNode(true);
+  var svgData=new XMLSerializer().serializeToString(clone);
+  var blob=new Blob([svgData],{type:'image/svg+xml;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var img=new Image();
+  img.onload=function(){
+    var sc=2,w=svgEl.width.baseVal.value||800,h=svgEl.height.baseVal.value||200;
+    var canvas=document.createElement('canvas');
+    canvas.width=w*sc;canvas.height=h*sc;
+    var ctx=canvas.getContext('2d');
+    ctx.scale(sc,sc);ctx.fillStyle='#F8FBFF';ctx.fillRect(0,0,w*sc,h*sc);
+    ctx.drawImage(img,0,0);URL.revokeObjectURL(url);
+    callback({dataURL:canvas.toDataURL('image/png'),width:w,height:h});
+  };
+  img.onerror=function(){URL.revokeObjectURL(url);callback(null);};
+  img.src=url;
+}
+
+// ─── ÉVÉNEMENTS SVG (délégation) ─────────────────────────────────────────────
+(function(){
+  function atcHint(show){
+    var h=document.getElementById('atc-connect-hint');
+    if(h)h.style.display=show?'block':'none';
+  }
+  function cancelConnect(){
+    atcState.connecting=false;atcState.connectSource=null;
+    var tl=document.getElementById('atc-temp-line');
+    if(tl)tl.setAttribute('display','none');
+    atcHint(false);atcRender();
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    var svg=document.getElementById('atc-svg');
+    if(!svg)return;
+
+    svg.addEventListener('mousedown',function(e){
+      var isPort=e.target.classList&&e.target.classList.contains('atc-port-out');
+      var nodeG=e.target.closest?e.target.closest('.atc-node'):null;
+      if(isPort&&nodeG){
+        e.preventDefault();e.stopPropagation();
+        var nid=nodeG.getAttribute('data-id');
+        var node=atcState.nodes.find(function(n){return n.id===nid;});
+        if(!node)return;
+        atcState.connecting=true;atcState.connectSource=nid;
+        var tl=document.getElementById('atc-temp-line');
+        var sx=node.x+ATC_NODE_W,sy=node.y+ATC_NODE_H/2;
+        tl.setAttribute('x1',sx);tl.setAttribute('y1',sy);
+        tl.setAttribute('x2',sx);tl.setAttribute('y2',sy);
+        tl.removeAttribute('display');
+        atcHint(true);
+      } else if(nodeG&&!atcState.connecting){
+        e.preventDefault();
+        var nid=nodeG.getAttribute('data-id');
+        var node=atcState.nodes.find(function(n){return n.id===nid;});
+        if(!node)return;
+        atcState.selectedNode=nid;atcState.dragging=nid;
+        var pt=atcGetSVGPt(e);
+        atcState.dragOffset={x:pt.x-node.x,y:pt.y-node.y};
+        atcRender();
+      }
+    });
+
+    svg.addEventListener('mousemove',function(e){
+      var pt=atcGetSVGPt(e);
+      if(atcState.connecting){
+        var tl=document.getElementById('atc-temp-line');
+        if(tl){tl.setAttribute('x2',pt.x);tl.setAttribute('y2',pt.y);}
+      }
+      if(atcState.dragging){
+        var node=atcState.nodes.find(function(n){return n.id===atcState.dragging;});
+        if(!node)return;
+        node.x=Math.max(0,pt.x-atcState.dragOffset.x);
+        node.y=Math.max(26,pt.y-atcState.dragOffset.y);
+        atcRender();
+      }
+    });
+
+    svg.addEventListener('mouseup',function(e){
+      if(atcState.connecting){
+        var pt=atcGetSVGPt(e);
+        var tgt=atcNodeAtPoint(pt);
+        if(tgt&&tgt.id!==atcState.connectSource){
+          var dup=atcState.links.some(function(l){return l.from===atcState.connectSource&&l.to===tgt.id;});
+          if(!dup){
+            atcState.links.push({id:'l'+(++atcState.linkCounter),from:atcState.connectSource,to:tgt.id});
+            autosave();
+          }
+        }
+        cancelConnect();
+      }
+      if(atcState.dragging){atcState.dragging=null;autosave();}
+    });
+
+    svg.addEventListener('mouseleave',function(){
+      if(atcState.connecting)cancelConnect();
+      atcState.dragging=null;
+    });
+
+    svg.addEventListener('click',function(e){
+      if(atcState.connecting||atcState.dragging)return;
+      var linkEl=e.target.closest?e.target.closest('.atc-link'):null;
+      if(linkEl){
+        var lid=linkEl.getAttribute('data-lid');
+        if(confirm('Supprimer cette liaison ?')){
+          atcState.links=atcState.links.filter(function(l){return l.id!==lid;});
+          atcRender();autosave();
+        }
+      }
+    });
+
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape'&&atcState.connecting)cancelConnect();
+    });
+
+    atcRender();
+  });
+}());
+
+// ─── ANALYSE IA — appel via Netlify Function ─────────────────────────────────
+async function aiGenerate(){
+  var statusEl=document.getElementById('ai-status');
+  var faits=(document.getElementById('faits').value||'').trim();
+  if(!faits||faits.length<20){
+    statusEl.style.color='#dc2626';statusEl.textContent='⚠ Rédigez d\'abord les faits de l\'accident (min. 20 caractères).';return;
+  }
+  var btn=document.getElementById('btn-ai-gen');
+  btn.disabled=true;statusEl.style.color='#D85A30';statusEl.textContent='⏳ Analyse en cours…';
+  try{
+    var d=collectData();
+    var sysPrompt='Tu es un conseiller en prévention niveau 1 belge expert en analyse d\'accidents du travail selon la méthode arbre des causes (INRS). Analyse les faits et identifie les causes selon les 4 niveaux (primaires/secondaires/tertiaires/quaternaires). Propose des mesures de prévention concrètes avec références légales CBET. Réponds UNIQUEMENT en JSON valide avec exactement ces clés : causes_primaires, causes_secondaires, causes_tertiaires, causes_quaternaires, recommandations_immediates, recommandations_court_terme, recommandations_moyen_terme. Chaque valeur est un tableau de chaînes.';
+    var userMsg='Analyse d\'accident du travail\n\nVictime : '+(d.vicNom||'')+(d.vicPrenom?' '+d.vicPrenom:'')+', '+(d.vicFonction||'')+'\nEntreprise : '+(d.entreprise||'')+'\nDate : '+(d.dateAccident||'')+'\n\nFaits :\n'+faits;
+    var resp=await fetch('/.netlify/functions/claude',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:4096,
+        system:sysPrompt,
+        messages:[{role:'user',content:userMsg}]
+      })
+    });
+    if(!resp.ok){var errTxt=await resp.text();throw new Error('HTTP '+resp.status+' — '+errTxt.slice(0,120));}
+    var data=await resp.json();
+    if(data.error)throw new Error(data.error.message||JSON.stringify(data.error));
+    var text=(data.content&&data.content[0])?data.content[0].text:'';
+    var jsonMatch=text.match(/\{[\s\S]*\}/);
+    if(!jsonMatch)throw new Error('La réponse IA ne contient pas de JSON valide');
+    var res=JSON.parse(jsonMatch[0]);
+    aiApplyResults(res);
+    statusEl.style.color='#16a34a';statusEl.textContent='✓ Analyse terminée — étapes 3 et 4 pré-remplies.';
+  }catch(e){
+    statusEl.style.color='#dc2626';statusEl.textContent='✗ Erreur : '+e.message;
+  }finally{btn.disabled=false;}
+}
+
+function aiApplyResults(res){
+  ['p','s','t','q'].forEach(function(t){var el=document.getElementById('causes-'+t+'-list');if(el)el.innerHTML='';});
+  ['imm','ct','mt'].forEach(function(t){var el=document.getElementById('reco-'+t+'-list');if(el)el.innerHTML='';});
+  function fill(arr,fn){(arr||[]).forEach(function(v){if(v&&v.trim())fn(v.trim());});}
+  fill(res.causes_primaires,function(c){addCause('p');var l=document.querySelectorAll('#causes-p-list .cause-item input');if(l.length)l[l.length-1].value=c;});
+  fill(res.causes_secondaires,function(c){addCause('s');var l=document.querySelectorAll('#causes-s-list .cause-item input');if(l.length)l[l.length-1].value=c;});
+  fill(res.causes_tertiaires,function(c){addCause('t');var l=document.querySelectorAll('#causes-t-list .cause-item input');if(l.length)l[l.length-1].value=c;});
+  fill(res.causes_quaternaires,function(c){addCause('q');var l=document.querySelectorAll('#causes-q-list .cause-item input');if(l.length)l[l.length-1].value=c;});
+  fill(res.recommandations_immediates,function(r){addReco('imm');var l=document.querySelectorAll('#reco-imm-list textarea');if(l.length)l[l.length-1].value=r;});
+  fill(res.recommandations_court_terme,function(r){addReco('ct');var l=document.querySelectorAll('#reco-ct-list textarea');if(l.length)l[l.length-1].value=r;});
+  fill(res.recommandations_moyen_terme,function(r){addReco('mt');var l=document.querySelectorAll('#reco-mt-list textarea');if(l.length)l[l.length-1].value=r;});
+  autosave();
+  setTimeout(function(){goStep(3);},700);
+}
+
+</script>
+<!-- Nexum Advisory — Protection nxDecode -->
+<style>
+#nx-gate{position:fixed;inset:0;background:#1a1a1a;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;font-family:Arial,sans-serif}
+#nx-gate .nx-card{background:#fff;border-radius:12px;padding:32px 28px;max-width:380px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+#nx-gate .nx-brand{font-size:13px;font-weight:700;color:#D85A30;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+#nx-gate .nx-tool{font-size:11px;color:#888;margin-bottom:4px}
+#nx-gate .nx-title{font-size:17px;font-weight:700;color:#4A1B0C;margin-bottom:4px}
+#nx-gate .nx-sub{font-size:11px;color:#888;margin-bottom:20px;line-height:1.5}
+#nx-gate input{width:100%;padding:10px 14px;font-size:15px;letter-spacing:.12em;border:1.5px solid #D3C9C2;border-radius:8px;text-align:center;text-transform:uppercase;outline:none;font-family:'Courier New',monospace;color:#4A1B0C;margin-bottom:6px}
+#nx-gate input:focus{border-color:#D85A30}
+#nx-gate .nx-btn{width:100%;padding:11px;background:#4A1B0C;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px}
+#nx-gate .nx-btn:hover{background:#3A1209}
+#nx-gate .nx-msg{font-size:12px;color:#c0392b;min-height:16px;margin-bottom:2px}
+#nx-gate .nx-ft{font-size:10px;color:#bbb;margin-top:8px}
+</style>
+<div id="nx-gate">
+  <div class="nx-card">
+    <div class="nx-brand">Nexum Advisory</div>
+    <div class="nx-tool">Outil ATG — Analyse Accident du Travail Grave</div>
+    <div class="nx-title">Accès protégé par licence</div>
+    <div class="nx-sub">Entrez votre code de licence Nexum pour accéder à cet outil.<br>Art. II.3-37 — Code du bien-être au travail</div>
+    <input id="nx-inp" type="text" placeholder="CODE DE LICENCE" maxlength="16"
+      oninput="this.value=this.value.replace(/\s/g,'').toUpperCase()"
+      onkeydown="if(event.key==='Enter')nxVerify()">
+    <div class="nx-msg" id="nx-msg"></div>
+    <button class="nx-btn" onclick="nxVerify()">Valider</button>
+    <div class="nx-ft">Cet outil est protégé par licence Nexum Advisory</div>
+  </div>
+</div>
+<script>
+(function(){
+  var TOOL='ATG';
+  function nxDecode(code){
+    code=code.replace(/\s/g,'');
+    if(code.length<14)return null;
+    var s=parseInt(code.slice(0,5),36),t=parseInt(code.slice(5,8),36),
+        d=parseInt(code.slice(8,12),36),c=parseInt(code.slice(12,14),36);
+    if(isNaN(s)||isNaN(t)||isNaN(d)||isNaN(c))return null;
+    if((s+t+d)%1296!==c)return null;
+    return{tools:t,day:d};
+  }
+  function toolAllowed(tv){
+    if(tv===0)return true;
+    var B={
+      'ARIS_GLOB':1,'ARIS_INC':2,'VLT':4,'LMRA':8,
+      'PROC_INC':16,'SLCI':32,'CPPT_ODJ':64,'CPPT_PV':128,
+      'ERG':256,'PIU':512,'PGP':1024,'ATG':2048
+    };
+    return(tv&(B[TOOL]||0))!==0;
+  }
+  function nxCheck(code){
+    var d=nxDecode(code);
+    if(!d)return{ok:false,msg:'Code invalide. Vérifiez la saisie.'};
+    var now=new Date(),nd=Math.floor(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate())/86400000);
+    if(nd>d.day)return{ok:false,msg:'Code expiré. Contactez Nexum Advisory.'};
+    if(!toolAllowed(d.tools))return{ok:false,msg:'Ce code ne couvre pas cet outil (ATG).'};
+    return{ok:true};
+  }
+  function nxOpen(){var g=document.getElementById('nx-gate');if(g)g.style.display='none';}
+  var stored=localStorage.getItem('nx_lic_ATG')||'';
+  if(stored){var r0=nxCheck(stored);if(r0.ok)nxOpen();}
+  window.nxVerify=function(){
+    var code=(document.getElementById('nx-inp').value||'').trim().toUpperCase();
+    var r=nxCheck(code);
+    var m=document.getElementById('nx-msg');if(m)m.textContent=r.msg||'';
+    if(r.ok){localStorage.setItem('nx_lic_ATG',code);nxOpen();}
+  };
+})();
+</script>
+</body>
+</html>
