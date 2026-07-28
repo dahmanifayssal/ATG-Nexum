@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Analyse Accident du Travail Grave (ATG) | Nexum Advisory</title>
-<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+<script src="libs/docx.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14px}
@@ -115,10 +115,95 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
 .atc-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#666}
 .atc-legend-dot{width:10px;height:10px;border-radius:50%}
 .atc-hint{font-size:11px;color:#2563EB;font-weight:700;margin-top:6px;display:none}
-/* ─── RECO TIMELINE ──────────────────────────────────────────────────────── */
-.rb-imm{background:#fef2f2;color:#991b1b;border:1px solid #dc2626}
-.rb-ct{background:#FEF3E7;color:#633806;border:1px solid #EF9F27}
-.rb-mt{background:#eff6ff;color:#1e3a8a;border:1px solid #3b82f6}
+/* ─── ATG CLASSIFICATION & DÉLAIS ───────────────────────────────────────── */
+.atg-criteria{background:#f0fdf4;border-left:4px solid #16a34a;padding:12px 16px;border-radius:0 6px 6px 0;font-size:12px;color:#14532d;margin:0 0 14px;line-height:1.7}
+.atg-criteria strong{color:#15803d}
+.delais-box{background:#EBF5FB;border:1px solid #2E86C1;border-radius:8px;padding:14px 18px;margin-bottom:14px;font-size:12px;line-height:1.7;color:#1A5276}
+.delais-box .db-title{font-weight:700;font-size:12px;color:#1A5276;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.delais-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
+.d-badge{flex-shrink:0;font-weight:700;padding:2px 8px;border-radius:4px;font-size:11px;white-space:nowrap;color:#fff}
+.db-imm{background:#dc2626}.db-8j{background:#D85A30}.db-10j{background:#2E86C1}.db-inf{background:#6B7280}
+/* ─── 4 COMPOSANTES ─────────────────────────────────────────────────────── */
+.composante-card{background:#F5F0EE;border:1px solid #E0D8D4;border-radius:8px;padding:14px 16px;height:100%}
+.composante-label{font-size:11px;font-weight:700;color:#4A1B0C;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.composante-tip{display:block;font-size:11px;color:#888;font-style:italic;margin-top:5px;line-height:1.4}
+.composante-autre{display:none;margin-top:6px}
+.composante-autre input{width:100%;padding:6px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC}
+/* ─── PHOTOS ────────────────────────────────────────────────────────────── */
+.photo-warn{font-size:11px;color:#D85A30;font-style:italic;margin-top:4px;display:none}
+.photo-item{display:grid;grid-template-columns:130px 1fr;gap:12px;align-items:start;background:#F5F0EE;border:1px solid #E0D8D4;border-radius:8px;padding:12px;margin-bottom:10px}
+.photo-item img{width:120px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #D3C9C2;display:block}
+.photo-item-fields{display:flex;flex-direction:column;gap:6px}
+.photo-item-fields label{font-size:11px;color:#888;font-weight:600;margin-bottom:1px}
+.photo-item-fields input,.photo-item-fields textarea{width:100%;padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC;color:#2C2C2A}
+.photo-item-fields input:focus,.photo-item-fields textarea:focus{outline:none;border-color:#D85A30}
+.photo-item-fields textarea{resize:vertical;min-height:48px}
+/* ─── BÉNIN — composantes optionnelles ──────────────────────────────────── */
+.composante-optionnel .fg2{opacity:0.52;transition:opacity .2s}
+/* ─── CAS PARTICULIERS ──────────────────────────────────────────────────── */
+.cas-part-box{background:#FEF3E7;border-left:4px solid #EF9F27;padding:12px 16px;border-radius:0 6px 6px 0;font-size:12px;color:#633806}
+.cas-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cas-row label{font-size:12px;cursor:pointer;color:#633806}
+.cas-row input[type=checkbox]{width:14px;height:14px;accent-color:#D85A30;cursor:pointer;flex-shrink:0}
+.cas-note{display:none;margin:2px 0 6px 22px;font-size:11px;color:#1A5276;font-style:italic;line-height:1.5}
+/* ─── COMPTEUR J+10 ─────────────────────────────────────────────────────── */
+#j10-counter{padding:4px 12px;border-radius:5px;font-size:11px;font-weight:700;letter-spacing:.04em;white-space:nowrap;display:none}
+.j10-ok{background:#16a34a;color:#fff}
+.j10-warn{background:#EF9F27;color:#2C2C2A}
+.j10-danger{background:#dc2626;color:#fff;animation:j10pulse 1.4s infinite}
+@keyframes j10pulse{0%,100%{opacity:1}50%{opacity:.7}}
+/* ─── VALIDATION MODALE ─────────────────────────────────────────────────── */
+.val-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9990;display:flex;align-items:center;justify-content:center}
+.val-card{background:#fff;border-radius:10px;padding:24px 28px;max-width:500px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.val-title{font-size:15px;font-weight:700;color:#dc2626;margin-bottom:4px}
+.val-sub{font-size:12px;color:#888;margin-bottom:14px}
+.val-list{list-style:none;padding:0;margin:0 0 16px}
+.val-list li{font-size:13px;color:#2C2C2A;padding:5px 0;border-bottom:1px solid #F5F0EE;display:flex;align-items:center;gap:8px}
+.val-list li::before{content:'⚠';color:#EF9F27;flex-shrink:0}
+.val-btns{display:flex;gap:10px;justify-content:flex-end}
+/* ─── COUVERTURE CAUSES→RECOS ───────────────────────────────────────────── */
+.coverage-box{background:#EBF5FB;border:1px solid #2E86C1;border-radius:8px;padding:14px 16px;margin-bottom:16px}
+.coverage-title{font-size:12px;font-weight:700;color:#1A5276;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.cov-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;border-bottom:1px solid rgba(46,134,193,.15)}
+.cov-ok{color:#16a34a;font-weight:700;flex-shrink:0}
+.cov-miss{color:#dc2626;font-weight:700;flex-shrink:0}
+.cov-label{flex:1;color:#1A5276}
+.reco-lien{padding:5px 8px;border:1px solid #D3C9C2;border-radius:5px;font-size:11px;font-family:Arial,sans-serif;color:#555;background:#FDFCFC;flex:1}
+.reco-lien:focus{outline:none;border-color:#D85A30}
+/* ─── CHECKLIST ENTRETIENS ──────────────────────────────────────────────── */
+.entretien-grid{display:grid;grid-template-columns:auto 1fr 1fr auto;gap:6px;align-items:center;margin-bottom:6px}
+.entretien-grid input[type=checkbox]{width:16px;height:16px;accent-color:#D85A30;cursor:pointer;flex-shrink:0}
+.entretien-grid label{font-size:13px;cursor:pointer;font-weight:600;color:#2C2C2A}
+.entretien-grid input[type=text],.entretien-grid input[type=date]{padding:6px 9px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC;width:100%}
+.entretien-grid input[type=text]:focus,.entretien-grid input[type=date]:focus{outline:none;border-color:#D85A30}
+.ent-hd{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em;padding-bottom:4px;border-bottom:1px solid #E0D8D4;margin-bottom:6px;display:grid;grid-template-columns:auto 1fr 1fr auto;gap:6px}
+.ent-progress{margin-top:10px;font-size:12px;color:#4A1B0C;font-weight:600}
+/* ─── WIDGET CLASSIFICATION MANUELLE ────────────────────────────────────── */
+.classif-widget{border:1px solid #D3C9C2;border-radius:6px;background:#FDFCFC;overflow:hidden}
+.classif-widget-row{display:flex;align-items:center;gap:10px;padding:9px 12px}
+.classif-widget-label{font-size:13px;font-weight:600;color:#2C2C2A;flex:1;min-width:0}
+.classif-widget-badge{font-size:10px;font-style:italic;margin-top:2px}
+.classif-badge-auto{color:#8B9BAE}
+.classif-badge-manual{color:#D85A30;font-weight:600}
+.classif-widget-btn{flex-shrink:0;font-size:11px;padding:5px 11px;background:none;border:1px solid #D85A30;color:#D85A30;border-radius:4px;cursor:pointer;font-family:Arial,sans-serif;font-weight:600}
+.classif-widget-btn:hover{background:#FEF3E7}
+.classif-justif-bar{display:none;background:#FEF3E7;border-top:1px solid #FDDCB5;padding:6px 12px;font-size:11px;color:#7C3310}
+/* ─── MODALE MODIFICATION MANUELLE ──────────────────────────────────────── */
+#classif-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(74,27,12,.55);align-items:center;justify-content:center}
+#classif-modal.open{display:flex}
+#classif-modal .modal-box{background:#fff;border-radius:10px;padding:28px 30px;max-width:500px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+#classif-modal .modal-title{font-size:14px;font-weight:700;color:#4A1B0C;margin-bottom:6px}
+#classif-modal .modal-info{font-size:12px;color:#888;margin-bottom:18px;padding:8px 10px;background:#F5F0EE;border-radius:5px}
+#classif-modal label.ml{font-size:12px;font-weight:600;color:#888;display:block;margin-bottom:4px}
+#classif-modal select,#classif-modal textarea{width:100%;padding:9px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:13px;font-family:Arial,sans-serif;background:#FDFCFC;box-sizing:border-box}
+#classif-modal select{margin-bottom:14px}
+#classif-modal textarea{resize:vertical;margin-bottom:6px}
+#classif-modal .modal-err{font-size:12px;color:#dc2626;min-height:18px;margin-bottom:12px}
+#classif-modal .modal-btns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+#classif-modal .btn-cancel{padding:9px 18px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #D3C9C2;background:#fff;color:#4A1B0C;font-family:Arial,sans-serif}
+#classif-modal .btn-reset{padding:9px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid #D3C9C2;background:#F5F0EE;color:#7C3310;font-family:Arial,sans-serif;margin-right:auto;display:none}
+#classif-modal .btn-confirm{padding:9px 18px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#D85A30;color:#fff;font-family:Arial,sans-serif}
+#classif-modal .modal-footer{font-size:10px;color:#bbb;margin-top:12px;text-align:center}
 </style>
 </head>
 <body>
@@ -128,7 +213,13 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
     <div class="sub">Nexum Advisory</div>
     <div class="title">Analyse Accident du Travail Grave — ATG</div>
   </div>
-  <div class="ref">Art. II.3-37 — Code du bien-être au travail<br>FOR-GR-103 | <span id="hdr-save" style="color:#86efac"></span></div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+    <div class="ref">Art. II.3-37 — Code du bien-être au travail<br>FOR-GR-103 | <span id="hdr-save" style="color:#86efac"></span></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div id="j10-counter"></div>
+      <button onclick="nouvelleAnalyse()" style="padding:4px 12px;background:transparent;border:1px solid #5A2A1A;color:#F0997B;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Arial,sans-serif;white-space:nowrap">+ Nouvelle analyse</button>
+    </div>
+  </div>
 </div>
 <div class="obar"></div>
 
@@ -152,7 +243,7 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
     </div>
     <div class="prog-step" id="ps5" onclick="goStep(5)">
       <div class="ps-num">5</div>
-      <div class="ps-lbl">Participants</div>
+      <div class="ps-lbl">Suivi</div>
     </div>
     <div class="prog-step" id="ps6" onclick="goStep(6)">
       <div class="ps-num">6</div>
@@ -180,16 +271,29 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
       <div class="field"><label>Date(s) de l'analyse / visite</label><input id="dateAnalyse" placeholder="ex. 01/06/2025"></div>
     </div>
     <div class="fg2">
-      <div class="field"><label>Date réception de la déclaration</label><input id="dateDeclaration" type="date"></div>
+      <div class="field"><label>Date de la déclaration</label><input id="dateDeclaration" type="date"></div>
       <div class="field">
         <label>Type d'accident</label>
-        <select id="typeAccident">
-          <option value="grave">Accident grave (Art. II.3-37)</option>
-          <option value="mortel">Accident mortel</option>
-          <option value="arret">Accident avec arrêt de travail</option>
-          <option value="bénin">Accident bénin / sans arrêt</option>
-          <option value="chemin">Accident sur le chemin du travail</option>
+        <div class="classif-widget" id="typeAccident-widget">
+          <div class="classif-widget-row">
+            <div style="flex:1;min-width:0">
+              <div class="classif-widget-label" id="typeAccident-label">—</div>
+              <div class="classif-widget-badge classif-badge-auto" id="typeAccident-badge" style="display:none"></div>
+            </div>
+            <button type="button" class="classif-widget-btn" onclick="openClassifModal()">Modifier manuellement</button>
+          </div>
+          <div class="classif-justif-bar" id="typeAccident-justif-bar">
+            <strong>Justification :</strong> <span id="typeAccident-justif-preview"></span>
+          </div>
+        </div>
+        <select id="typeAccidentSelect" style="display:none" onchange="updateDelais();updateJ10Counter();autosave()">
+          <option value="">— Sélectionner —</option>
+          <option value="benin">Bénin</option>
+          <option value="declaration">Accident pour lequel une déclaration est obligatoire</option>
+          <option value="grave">Grave</option>
+          <option value="tres_grave">Très grave</option>
         </select>
+        <span class="composante-tip">Classification calculée à partir des 4 codes FEDRIS — toute modification manuelle requiert une justification écrite</span>
       </div>
     </div>
     <div class="fg2">
@@ -197,19 +301,25 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
         <label>Mode d'enquête</label>
         <select id="modeEnquete">
           <option value="tel">Entretiens téléphoniques</option>
-          <option value="visite">Visite en entreprise</option>
+          <option value="visite">Visite sur les lieux de l'accident</option>
           <option value="mixte">Visite + entretiens téléphoniques</option>
         </select>
       </div>
       <div class="field"><label>Référence interne (optionnel)</label><input id="refInterne" placeholder="ex. DP 2025-001"></div>
     </div>
+    <div class="atg-criteria">
+      <strong>Critères légaux — Accident grave (Art. II.3-37 CBET)</strong><br>
+      (<strong>Déviation Tableau A</strong> OU <strong>Agent matériel Tableau B</strong>) ET (<strong>Lésion permanente</strong> OU <strong>Lésion temporaire Tableau E</strong>)<br>
+      <strong>Très grave / mortel</strong> = conditions ATG + décès OU lésion permanente. Faute ou imprudence de la victime n'exclut PAS l'AT — seule la faute intentionnelle de la victime l'exclut.
+    </div>
+    <div id="delais-box" class="delais-box" style="display:none"></div>
   </div>
 
   <div class="card">
     <div class="card-title">Entreprise</div>
     <div class="fg2">
       <div class="field"><label>Raison sociale</label><input id="entreprise" placeholder="Nom de l'entreprise"></div>
-      <div class="field"><label>N° d'affiliation</label><input id="affiliation" placeholder="ex. 46469/1"></div>
+      <div class="field"><label>Nombre de travailleurs</label><input id="nbTrav" type="number" placeholder="ex. 50"></div>
     </div>
     <div class="fg3">
       <div class="field"><label>Rue et numéro</label><input id="entRue" placeholder="Rue..."></div>
@@ -217,8 +327,8 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
       <div class="field"><label>Commune</label><input id="entVille" placeholder="Commune"></div>
     </div>
     <div class="fg2">
-      <div class="field"><label>Nombre de travailleurs</label><input id="nbTrav" type="number" placeholder="ex. 50"></div>
-      <div class="field"><label>Entreprise utilisatrice (si intérim)</label><input id="entUtil" placeholder="Optionnel"></div>
+      <div class="field"><label>Entreprise utilisatrice (si intérim)</label><input id="entUtil" placeholder="Optionnel — si la victime est intérimaire"></div>
+      <div class="field"><label>Secteur d'activité (optionnel)</label><input id="secteurActivite" placeholder="ex. Nettoyage, Construction, Soins de santé…"></div>
     </div>
     <div id="entUtil-addr-block" style="display:none">
       <div class="section-title">Adresse entreprise utilisatrice</div>
@@ -305,13 +415,11 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
       <label for="photosDisponibles">Des photos ont été prises</label>
     </div>
     <div id="photos-block" style="display:none;margin-top:10px">
-      <div class="field">
-        <label>Description / légendes des photos</label>
-        <textarea id="photosDesc" placeholder="Photo n°1 : ...\nPhoto n°2 : ..." style="min-height:60px"></textarea>
-      </div>
-      <div class="field" style="margin-top:8px">
-        <label>Source des photos (qui les a fournies)</label>
-        <input id="photosSource" placeholder="ex. M. DUPONT Jean, Conseiller en prévention">
+      <div id="photo-list"></div>
+      <div class="photo-warn" id="photo-warn"></div>
+      <div style="margin-top:8px">
+        <button class="btn btn-w" id="photo-add-btn" style="border-color:#D85A30;color:#D85A30" onclick="document.getElementById('photo-file-input').click()">+ Ajouter une photo</button>
+        <input type="file" id="photo-file-input" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="photoAddFiles(this.files);this.value=''">
       </div>
     </div>
   </div>
@@ -328,79 +436,24 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
   <!-- ── ARBRE DES CAUSES ───────────────────────────────────────── -->
   <div class="card">
     <div class="card-title">Arbre des causes — Méthode INRS</div>
-    <div class="info-box">Saisissez les causes dans chaque colonne. L'arbre SVG se génère automatiquement. <strong>Pour relier deux nœuds</strong> : cliquez-glissez depuis le cercle blanc (port de sortie) d'un nœud vers le nœud cible. Cliquez sur une flèche pour la supprimer. Appuyez sur Échap pour annuler une liaison.</div>
-    <div class="atc-cols">
-      <!-- Col 0 : Antécédents -->
-      <div class="atc-col">
-        <div class="atc-col-head" style="background:#1D4ED8">
-          <div class="atc-ch-title">Antécédents</div>
-          <div class="atc-ch-sub">Causes profondes</div>
-        </div>
-        <div class="atc-col-body" id="atc-inputs-0"></div>
-        <div style="padding:0 10px 10px"><button class="atc-add-btn" onclick="atcAddNode(0)">+ Ajouter un antécédent</button></div>
-      </div>
-      <!-- Col 1 : Faits intermédiaires -->
-      <div class="atc-col">
-        <div class="atc-col-head" style="background:#2563EB">
-          <div class="atc-ch-title">Faits intermédiaires</div>
-          <div class="atc-ch-sub">Enchaînement des faits</div>
-        </div>
-        <div class="atc-col-body" id="atc-inputs-1"></div>
-        <div style="padding:0 10px 10px"><button class="atc-add-btn" onclick="atcAddNode(1)">+ Ajouter un fait intermédiaire</button></div>
-      </div>
-      <!-- Col 2 : Fait ultime -->
-      <div class="atc-col">
-        <div class="atc-col-head" style="background:#DC2626">
-          <div class="atc-ch-title">Fait ultime</div>
-          <div class="atc-ch-sub">L'accident</div>
-        </div>
-        <div class="atc-col-body" id="atc-inputs-2"></div>
-        <div style="padding:0 10px 10px" id="atc-add-ult-wrap"><button class="atc-add-btn" onclick="atcAddNode(2)" style="border-color:#DC2626;color:#DC2626">+ Décrire l'accident</button></div>
-      </div>
+
+    <div class="check-row" style="margin-bottom:10px">
+      <input type="checkbox" id="pasArbre" onchange="toggleArbreUpload();autosave()">
+      <label for="pasArbre">Pas d'arbre des causes réalisé</label>
     </div>
-    <div class="atc-toolbar">
-      <button style="background:#4A1B0C;color:#fff" onclick="atcAutoLayout()">⚡ Auto-disposition</button>
-      <button style="background:#6B7280;color:#fff" onclick="atcClearLinks()">🔗 Effacer les liaisons</button>
-      <button style="background:#F5F0EE;color:#4A1B0C;border:1px solid #D3C9C2" onclick="atcClear()">🗑 Effacer tout</button>
-      <button style="background:#16a34a;color:#fff" onclick="atcExportPNG()">⬇ PNG</button>
-    </div>
-    <div class="atc-svg-wrap">
-      <svg id="atc-svg" width="800" height="200" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <marker id="atc-arrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto">
-            <polygon points="0 0, 8 3.5, 0 7" fill="#475569"/>
-          </marker>
-        </defs>
-        <line class="atc-col-guide" id="atc-guide-1" x1="267" y1="30" x2="267" y2="600"/>
-        <line class="atc-col-guide" id="atc-guide-2" x1="533" y1="30" x2="533" y2="600"/>
-        <text class="atc-col-bg-lbl" x="134" y="18">ANTÉCÉDENTS</text>
-        <text class="atc-col-bg-lbl" x="400" y="18">FAITS INTERMÉDIAIRES</text>
-        <text class="atc-col-bg-lbl" x="667" y="18">FAIT ULTIME</text>
-        <g id="atc-links-layer"></g>
-        <g id="atc-nodes-layer"></g>
-        <line id="atc-temp-line" x1="0" y1="0" x2="0" y2="0" stroke="#2563EB" stroke-dasharray="6,3" stroke-width="2" display="none" pointer-events="none"/>
-      </svg>
-    </div>
-    <div class="atc-hint" id="atc-connect-hint">Mode connexion actif — Glissez vers le nœud cible. Cliquez ailleurs ou appuyez sur Échap pour annuler.</div>
-    <div class="atc-legend">
-      <div class="atc-legend-item"><div class="atc-legend-dot" style="background:#1D4ED8"></div> Antécédent</div>
-      <div class="atc-legend-item"><div class="atc-legend-dot" style="background:#2563EB"></div> Fait intermédiaire</div>
-      <div class="atc-legend-item"><div class="atc-legend-dot" style="background:#DC2626"></div> Fait ultime (accident)</div>
-      <div class="atc-legend-item" style="margin-left:10px;color:#888;font-style:italic">● = port de sortie (glisser pour connecter)</div>
+    <div id="arbre-upload-zone">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <button class="btn btn-w" onclick="document.getElementById('atc-upload-input').click()" style="border-color:#2563EB;color:#2563EB">Charger une image (JPG / PNG)</button>
+        <input type="file" id="atc-upload-input" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" onchange="atcHandleUpload(this.files);this.value=''">
+        <button class="btn btn-w" id="atc-clear-upload-btn" onclick="atcClearUpload()" style="display:none;border-color:#dc2626;color:#dc2626">✕ Retirer l'image</button>
+        <span id="atc-upload-name" style="font-size:12px;color:#16a34a;font-weight:600"></span>
+      </div>
+      <div id="atc-upload-preview" style="display:none;margin-bottom:10px;border:1px solid #E0D8D4;border-radius:8px;overflow:hidden">
+        <img id="atc-upload-img" style="max-width:100%;display:block" alt="Arbre des causes importé">
+      </div>
     </div>
   </div>
   <!-- ── FIN ARBRE DES CAUSES ───────────────────────────────────── -->
-
-  <!-- ── ANALYSE IA (via Netlify Function) ────────────────────── -->
-  <div class="card" style="border:1.5px solid #D85A30">
-    <div class="card-title" style="color:#D85A30">🤖 Analyse IA — Optionnelle</div>
-    <div class="info-box">L'IA analyse les faits rédigés et propose automatiquement des causes (4 niveaux) et des recommandations (3 horizons temporels). Les résultats pré-remplissent les étapes 3 et 4 et restent entièrement modifiables.</div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px">
-      <button class="btn btn-o" id="btn-ai-gen" onclick="aiGenerate()" style="font-size:13px;padding:10px 20px">🤖 Générer l'analyse IA</button>
-      <span id="ai-status" style="font-size:12px;font-weight:600"></span>
-    </div>
-  </div>
-  <!-- ── FIN ANALYSE IA ────────────────────────────────────────── -->
 
   <div class="card">
     <div class="card-title">Éléments complémentaires — Déclarations</div>
@@ -442,40 +495,39 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
       </div>
       <div class="field">
         <label>Témoin(s) présent(s)</label>
-        <select id="vd_temoin">
+        <select id="vd_temoin" onchange="toggleTemoinNom();autosave()">
           <option value="">— Sélectionner —</option>
-          <option value="non">Pas de témoin</option>
-          <option value="oui">Témoin(s) présent(s)</option>
-          <option value="indirect">Témoin indirect</option>
+          <option value="non">Pas de témoin direct</option>
+          <option value="oui">Témoin(s) direct(s) présent(s)</option>
+          <option value="indirect">Témoin indirect (ex. clientèle présente)</option>
         </select>
       </div>
-      <div class="field">
-        <label>Nom et fonction du/des témoin(s)</label>
-        <input id="vd_temoinNom" placeholder="Optionnel si pas de témoin">
+      <div class="field" id="vd_temoinNom-block" style="display:none">
+        <label>Nom(s) et fonction(s) du/des témoin(s) direct(s)</label>
+        <input id="vd_temoinNom" placeholder="ex. M. DUPONT Jean, collègue" oninput="autosave()">
       </div>
     </div>
-    <div class="fg3">
+    <div class="fg2">
       <div class="field">
-        <label>EPI disponibles et portés</label>
-        <select id="vd_epi">
+        <label>EPI au moment de l'accident</label>
+        <select id="vd_epi" onchange="autosave()">
           <option value="">— Sélectionner —</option>
-          <option value="oui_portes">EPI disponibles et portés</option>
-          <option value="dispo_non">EPI disponibles mais non portés</option>
-          <option value="non_dispo">EPI non disponibles</option>
-          <option value="na">Sans objet</option>
+          <option value="oui_portes">EPI requis disponibles et portés</option>
+          <option value="dispo_non">EPI disponibles mais non portés au moment de l'accident</option>
+          <option value="non_dispo">EPI non disponibles / non fournis</option>
+          <option value="na">Sans objet — aucun EPI requis pour cette tâche</option>
         </select>
+        <input id="vd_epiDetail" placeholder="EPI concernés — ex. chaussures de sécurité (portées), gants (non portés), harnais (non disponible)…" style="margin-top:6px" oninput="autosave()">
       </div>
       <div class="field">
-        <label>EPI portés (détail)</label>
-        <input id="vd_epiDetail" placeholder="ex. chaussures de sécurité, gants">
-      </div>
-      <div class="field">
-        <label>Analyse des risques effectuée</label>
-        <select id="vd_arda">
+        <label>Analyse des risques (AR) pour ce poste / cette tâche</label>
+        <select id="vd_arda" onchange="toggleArdaRef();autosave()">
           <option value="">— Sélectionner —</option>
-          <option value="non">Analyse des risques non effectuée pour ce travail</option>
-          <option value="oui">Analyse des risques existante</option>
+          <option value="non">Aucune AR existante pour ce poste/travail</option>
+          <option value="partiel">AR globale existante, mais pas de fiche par poste</option>
+          <option value="oui">AR globale ET par poste de travail existante</option>
         </select>
+        <input id="vd_arda_ref" placeholder="Référence de l'AR — ex. AR poste 'Aide-ménagère' mis à jour 12/2024 (cf. outil ARS Nexum)" style="margin-top:6px;display:none" oninput="autosave()">
       </div>
     </div>
     <div class="fg2">
@@ -500,7 +552,7 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
 
     <div class="section-title">Déclaration de l'employeur / responsable</div>
     <div class="fg2">
-      <div class="field"><label>Nom et fonction de l'interlocuteur</label><input id="emp_nom" placeholder="ex. M. DUPONT Jean, Responsable d'agence"></div>
+      <div class="field"><label>Nom et fonction de l'interlocuteur</label><input id="emp_nom" placeholder="ex. M. PRÉNOM NOM, Responsable d'agence"></div>
       <div class="field">
         <label>Type de contrat de la victime</label>
         <select id="emp_contrat">
@@ -586,7 +638,8 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
     • <strong>Causes primaires</strong> — Faits matériels ayant directement rendu l'accident possible.<br>
     • <strong>Causes secondaires</strong> — Causes organisationnelles à l'origine des causes primaires.<br>
     • <strong>Causes tertiaires</strong> — Causes chez des tiers (client, donneur d'ordre, fabricant…).<br>
-    • <strong>Causes quaternaires</strong> — Facteurs psychosociaux au travail (stress, charge, climat…).
+    • <strong>Causes quaternaires</strong> — Facteurs psychosociaux au travail (stress, charge, climat…).<br>
+    <strong>Éviter l'inquisition</strong> — Le conseiller en prévention recherche les causes, pas les responsabilités. Une faute ou imprudence de la victime ne modifie pas la qualification d'AT.
   </div>
   <div class="ref-box">Art. II.3-37 §4 CBET — La notification doit identifier les causes immédiates, les causes à l'origine et les mesures de prévention envisagées.</div>
 
@@ -633,26 +686,13 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
 ═══════════════════════════════════════════════════════ -->
 <div class="panel" id="panel4">
 
+  <div id="coverage-box" class="coverage-box">
+    <div class="coverage-title">Couverture causes → mesures</div>
+    <div style="font-size:12px;color:#888;font-style:italic">Aucune cause encodée à l'étape 3.</div>
+  </div>
+
   <div class="info-box">
     Rédigez les recommandations selon les catégories et horizons temporels. Les <strong>recommandations générales</strong> (analyse des risques) sont pré-incluses conformément au CBET.
-  </div>
-
-  <div class="reco-block">
-    <div class="rb-head"><span class="reco-badge rb-imm">⚡ Immédiates</span> <span style="font-size:11px;color:#888">À mettre en œuvre sans délai</span></div>
-    <div id="reco-imm-list"></div>
-    <button class="btn-add" onclick="addReco('imm')">+ Ajouter une mesure immédiate</button>
-  </div>
-
-  <div class="reco-block">
-    <div class="rb-head"><span class="reco-badge rb-ct">📅 Court terme</span> <span style="font-size:11px;color:#888">Dans le mois suivant l'accident</span></div>
-    <div id="reco-ct-list"></div>
-    <button class="btn-add" onclick="addReco('ct')">+ Ajouter une mesure court terme</button>
-  </div>
-
-  <div class="reco-block">
-    <div class="rb-head"><span class="reco-badge rb-mt">🗓 Moyen terme</span> <span style="font-size:11px;color:#888">Dans les 1 à 6 mois</span></div>
-    <div id="reco-mt-list"></div>
-    <button class="btn-add" onclick="addReco('mt')">+ Ajouter une mesure moyen terme</button>
   </div>
 
   <div class="reco-block">
@@ -673,30 +713,22 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
       Le texte standard suivant sera automatiquement inclus dans le rapport. Vous pouvez y ajouter des recommandations spécifiques supplémentaires.
     </div>
     <div class="card" style="background:#F5F0EE;font-size:12px;line-height:1.7;margin-bottom:12px">
-      Nous vous recommandons de réaliser une analyse des risques professionnels pour chacun des postes de travail en tenant compte des différentes étapes des opérations. Cette démarche constitue l'étape clé d'une démarche de prévention efficace. Destinée à mieux connaître et à mieux maîtriser les risques encourus par vos travailleurs, elle vous permettra de disposer des éléments adaptés à la prise de mesures de prévention. Cette analyse comporte quatre phases successives :
+      Il est recommandé de réaliser une analyse des risques professionnels pour chacun des postes de travail concernés, en tenant compte des différentes étapes des opérations. Cette démarche constitue l'étape clé d'une prévention efficace — elle permet d'identifier, de hiérarchiser et de maîtriser les risques auxquels les travailleurs sont exposés. Cette analyse comporte quatre phases successives :
       <ul style="margin-top:6px;padding-left:20px">
         <li>Préparation de l'évaluation ;</li>
         <li>Identification des risques ;</li>
         <li>Classement des facteurs de risques ;</li>
         <li>Propositions de mesures de prévention. Les mesures de prévention à mettre en place seront ensuite intégrées dans le plan global de prévention et dans le plan annuel d'actions. <em>(Code du Bien-Être, Livre I, Titre 2)</em></li>
       </ul>
-      <div style="margin-top:8px">Mettre à jour votre plan global de prévention et le plan annuel d'action.</div>
+      <div style="margin-top:8px">Mettre à jour le plan global de prévention et le plan annuel d'action.</div>
     </div>
     <div id="reco-gen-list"></div>
     <button class="btn-add" onclick="addReco('gen')">+ Ajouter une recommandation générale supplémentaire</button>
   </div>
 
   <div class="card">
-    <div class="card-title">Plan d'actions</div>
-    <div class="info-box" style="margin-bottom:12px">Optionnel — Complétez le tableau de suivi des actions correctives si vous souhaitez l'inclure dans le rapport.</div>
-    <div class="pa-head-row">
-      <span>Action / mesure</span>
-      <span>Responsable</span>
-      <span>Délai</span>
-      <span></span>
-    </div>
-    <div id="pa-list"></div>
-    <button class="btn-add" onclick="addPA()">+ Ajouter une action</button>
+    <div class="card-title">Plan d'actions correctives</div>
+    <div class="info-box"><strong>Rappel légal (Art. II.3-37 §5 CBET) :</strong> Un plan d'actions correctives doit être élaboré séparément et transmis au SPF Emploi — Direction Contrôle du bien-être au travail — conjointement à ce rapport d'analyse. Ce plan est géré dans un processus distinct (outil Plan d'actions Nexum ou document séparé).</div>
   </div>
 
   <div class="brow">
@@ -709,6 +741,574 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
      ÉTAPE 5 — PARTICIPANTS & DISTRIBUTION
 ═══════════════════════════════════════════════════════ -->
 <div class="panel" id="panel5">
+
+  <!-- ── 4 COMPOSANTES OFFICIELLES ──────────────────────────────────────── -->
+  <div class="card" id="composantes-card">
+    <div class="card-title">Encodage statistique — 4 composantes &amp; Classification (Annexe II CBET)</div>
+    <div class="ref-box" style="margin-bottom:14px">Renseignez les 4 codes FEDRIS pour obtenir la <strong>classification automatique de gravité</strong>. Ces codes sont obligatoires pour la déclaration officielle. Utilisez "Autre" pour tout code hors liste.</div>
+    <div class="fg2" style="align-items:stretch">
+      <div>
+        <div class="composante-card">
+          <div class="composante-label">1 — Déviation <span style="font-size:10px;color:#888;font-weight:400">(Tableau A — Annexe II.1)</span></div>
+          <select id="codeDev" style="width:100%;padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC" onchange="toggleAutre('codeDev','codeDevAutre');updateClassification();autosave()">
+            <option value="">— Sélectionner —</option>
+            <option value="00">00 — Pas d'information</option>
+            <optgroup label="10 — Problème électrique, explosion, feu">
+              <option value="10">10 — Non précisé</option>
+              <option value="11">11 — Problème électrique par défaillance — contact indirect</option>
+              <option value="12">12 — Problème électrique — contact direct</option>
+              <option value="13">13 — Explosion</option>
+              <option value="14">14 — Incendie, embrasement</option>
+              <option value="19">19 — Autre déviation du groupe 10</option>
+            </optgroup>
+            <optgroup label="20 — Débordement, renversement, fuite, vaporisation">
+              <option value="20">20 — Non précisé</option>
+              <option value="21">21 — Solide : débordement, renversement</option>
+              <option value="22">22 — Liquide : fuite, suintement, écoulement, aspersion</option>
+              <option value="23">23 — Gazeux : vaporisation, formation d'aérosol</option>
+              <option value="24">24 — Pulvérulent : fumée, poussières, particules</option>
+              <option value="29">29 — Autre déviation du groupe 20</option>
+            </optgroup>
+            <optgroup label="30 — Rupture, bris, chute, effondrement d'agent matériel">
+              <option value="30">30 — Non précisé</option>
+              <option value="31">31 — Rupture de matériel, aux joints, aux connexions</option>
+              <option value="32">32 — Rupture / éclatement causant des éclats (bois, verre, métal…)</option>
+              <option value="33">33 — Chute d'agent matériel supérieur (tombant sur la victime)</option>
+              <option value="34">34 — Chute d'agent matériel inférieur (entraînant la victime)</option>
+              <option value="35">35 — Chute d'agent matériel — de plain-pied</option>
+              <option value="39">39 — Autre déviation du groupe 30</option>
+            </optgroup>
+            <optgroup label="40 — Perte de contrôle de machine, transport, outil, objet, animal">
+              <option value="40">40 — Non précisé</option>
+              <option value="41">41 — Perte de contrôle de machine (y c. démarrage intempestif)</option>
+              <option value="42">42 — Perte de contrôle de moyen de transport / manutention (motorisé ou non)</option>
+              <option value="43">43 — Perte de contrôle d'outil à main (motorisé ou non)</option>
+              <option value="44">44 — Perte de contrôle d'objet (porté, déplacé, manipulé…)</option>
+              <option value="45">45 — Perte de contrôle d'animal</option>
+              <option value="49">49 — Autre déviation du groupe 40</option>
+            </optgroup>
+            <optgroup label="50 — Glissade, trébuchement, chute de personne">
+              <option value="50">50 — Non précisé</option>
+              <option value="51">51 — Chute de personne — de hauteur</option>
+              <option value="52">52 — Glissade / trébuchement avec chute — de plain-pied</option>
+              <option value="59">59 — Autre déviation du groupe 50</option>
+            </optgroup>
+            <optgroup label="60 — Mouvement du corps sans contrainte physique (blessure externe)">
+              <option value="60">60 — Non précisé</option>
+              <option value="61">61 — En marchant sur un objet coupant</option>
+              <option value="62">62 — En s'agenouillant, s'asseyant, s'appuyant contre</option>
+              <option value="63">63 — En étant attrapé, entraîné par quelque chose ou par son élan</option>
+              <option value="64">64 — Mouvements non coordonnés, gestes intempestifs, inopportuns</option>
+              <option value="69">69 — Autre déviation du groupe 60</option>
+            </optgroup>
+            <optgroup label="70 — Mouvement du corps sous contrainte physique (blessure interne)">
+              <option value="70">70 — Non précisé</option>
+              <option value="71">71 — En soulevant, en portant, en se levant</option>
+              <option value="72">72 — En poussant, en tractant</option>
+              <option value="73">73 — En déposant, en se baissant</option>
+              <option value="74">74 — En torsion, en rotation, en se tournant</option>
+              <option value="75">75 — En marchant lourdement, faux pas, glissade sans chute</option>
+              <option value="79">79 — Autre déviation du groupe 70</option>
+            </optgroup>
+            <optgroup label="80 — Surprise, frayeur, violence, agression, présence">
+              <option value="80">80 — Non précisé</option>
+              <option value="81">81 — Surprise, frayeur</option>
+              <option value="82">82 — Violence / agression entre membres de l'entreprise</option>
+              <option value="83">83 — Violence / agression de personnes externes (banque, bus…)</option>
+              <option value="84">84 — Agression, bousculade par animal</option>
+              <option value="85">85 — Présence de la victime ou d'un tiers créant un danger</option>
+              <option value="89">89 — Autre déviation du groupe 80</option>
+            </optgroup>
+            <option value="99">99 — Autre déviation (non listée) — préciser ci-dessous</option>
+          </select>
+          <div class="composante-autre" id="codeDevAutre">
+            <input id="codeDevAutre-val" placeholder="Code Tableau A officiel (ex. 45, 79…)" oninput="autosave()">
+          </div>
+          <span class="composante-tip">52 codes officiels — Annexe II.1 CBET (version 07/03/2022)</span>
+        </div>
+      </div>
+      <div>
+        <div class="composante-card">
+          <div class="composante-label">2 — Agent matériel <span style="font-size:10px;color:#888;font-weight:400">(Tableau B — Annexe II.2)</span></div>
+          <select id="codeAgent" style="width:100%;padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC" onchange="toggleAutre('codeAgent','codeAgentAutre');updateClassification();autosave()">
+            <option value="">— Sélectionner —</option>
+            <optgroup label="00 — Pas d'agent matériel / Pas d'information">
+              <option value="00.00">00.00 — Pas d'agent matériel</option>
+              <option value="00.02">00.02 — Pas d'information</option>
+              <option value="00.99">00.99 — Autre situation du groupe 00</option>
+            </optgroup>
+            <optgroup label="01 — Bâtiments, constructions, surfaces à niveau">
+              <option value="01.00">01.00 — Non précisé</option>
+              <option value="01.01">01.01 — Éléments de bâtiments, de constructions</option>
+              <option value="01.02">01.02 — Surfaces / circulation à niveau (sols, terrains, planchers)</option>
+              <option value="01.03">01.03 — Surfaces à niveau flottantes</option>
+              <option value="01.99">01.99 — Autre élément du groupe 01</option>
+            </optgroup>
+            <optgroup label="02 — Bâtiments, constructions, surfaces en hauteur">
+              <option value="02.00">02.00 — Non précisé</option>
+              <option value="02.01">02.01 — Parties de bâtiment en hauteur fixes (toitures, terrasses, escaliers, quais)</option>
+              <option value="02.02">02.02 — Constructions en hauteur fixes (passerelles, échelles fixes, pylônes)</option>
+              <option value="02.03">02.03 — Constructions en hauteur mobiles (échafaudages roulants, nacelles, plates-formes élévatrices)</option>
+              <option value="02.04">02.04 — Constructions en hauteur temporaires (échafaudages temporaires, harnais)</option>
+              <option value="02.05">02.05 — Constructions en hauteur flottantes (plates-formes de forage, barges)</option>
+              <option value="02.99">02.99 — Autre élément du groupe 02</option>
+            </optgroup>
+            <optgroup label="03 — Bâtiments, constructions, surfaces en profondeur">
+              <option value="03.00">03.00 — Non précisé</option>
+              <option value="03.01">03.01 — Fouilles, tranchées, puits, fosses, escarpements, fosses de garage</option>
+              <option value="03.02">03.02 — Souterrains, galeries</option>
+              <option value="03.03">03.03 — Milieux sous-marins</option>
+              <option value="03.99">03.99 — Autre élément du groupe 03</option>
+            </optgroup>
+            <optgroup label="04 — Dispositifs de distribution de matière, canalisations">
+              <option value="04.00">04.00 — Non précisé</option>
+              <option value="04.01">04.01 — Canalisations fixes (gaz, air, liquides, solides, trémies)</option>
+              <option value="04.02">04.02 — Canalisations mobiles</option>
+              <option value="04.03">04.03 — Égouts, drainages</option>
+              <option value="04.99">04.99 — Autre élément du groupe 04</option>
+            </optgroup>
+            <optgroup label="05 — Moteurs, dispositifs de transmission et stockage d'énergie">
+              <option value="05.00">05.00 — Non précisé</option>
+              <option value="05.01">05.01 — Moteurs, générateurs d'énergie (thermique, électrique, rayonnement) y c. compresseurs, pompes</option>
+              <option value="05.02">05.02 — Dispositifs de transmission et stockage d'énergie (mécanique, pneumatique, hydraulique, électrique)</option>
+              <option value="05.99">05.99 — Autre élément du groupe 05</option>
+            </optgroup>
+            <optgroup label="06 — Outils à main non motorisés">
+              <option value="06.00">06.00 — Non précisé</option>
+              <option value="06.01">06.01 — Pour scier</option>
+              <option value="06.02">06.02 — Pour couper, séparer (ciseaux, cisailles, sécateurs)</option>
+              <option value="06.03">06.03 — Pour tailler, mortaiser, ciseler, rogner, tondre</option>
+              <option value="06.04">06.04 — Pour gratter, polir, poncer</option>
+              <option value="06.05">06.05 — Pour percer, tourner, visser</option>
+              <option value="06.06">06.06 — Pour clouer, riveter, agrafer</option>
+              <option value="06.07">06.07 — Pour coudre, tricoter</option>
+              <option value="06.08">06.08 — Pour souder, coller</option>
+              <option value="06.09">06.09 — Pour extraction de matériaux et travail du sol (outils agricoles)</option>
+              <option value="06.10">06.10 — Pour cirer, lubrifier, laver, nettoyer</option>
+              <option value="06.11">06.11 — Pour peindre</option>
+              <option value="06.12">06.12 — Pour maintenir, saisir</option>
+              <option value="06.13">06.13 — Pour travaux de cuisine (sauf couteaux)</option>
+              <option value="06.14">06.14 — Pour travaux médicaux / chirurgicaux — piquants, coupants</option>
+              <option value="06.15">06.15 — Pour travaux médicaux / chirurgicaux — non coupants, autres</option>
+              <option value="06.99">06.99 — Autre outil à main non motorisé</option>
+            </optgroup>
+            <optgroup label="07 — Outils à main mécaniques (motorisés)">
+              <option value="07.00">07.00 — Non précisé</option>
+              <option value="07.01">07.01 — Pour scier</option>
+              <option value="07.02">07.02 — Pour couper, séparer (ciseaux, cisailles, sécateurs)</option>
+              <option value="07.03">07.03 — Pour tailler, mortaiser, ciseler, rogner, tondre</option>
+              <option value="07.04">07.04 — Pour gratter, polir, poncer (tronçonneuse à disque)</option>
+              <option value="07.05">07.05 — Pour percer, tourner, visser</option>
+              <option value="07.06">07.06 — Pour clouer, riveter, agrafer</option>
+              <option value="07.07">07.07 — Pour coudre, tricoter</option>
+              <option value="07.08">07.08 — Pour souder, coller</option>
+              <option value="07.09">07.09 — Pour extraction de matériaux et travail du sol (brise-béton, outils agricoles)</option>
+              <option value="07.10">07.10 — Pour cirer, lubrifier, laver, nettoyer (aspirateur, nettoyeur haute pression)</option>
+              <option value="07.11">07.11 — Pour peindre</option>
+              <option value="07.12">07.12 — Pour maintenir, saisir</option>
+              <option value="07.13">07.13 — Pour travaux de cuisine (sauf couteaux)</option>
+              <option value="07.14">07.14 — Pour chauffer (séchoir, décapeur thermique, fer à repasser)</option>
+              <option value="07.15">07.15 — Pour travaux médicaux / chirurgicaux — piquants, coupants</option>
+              <option value="07.16">07.16 — Pour travaux médicaux / chirurgicaux — non coupants, autres</option>
+              <option value="07.17">07.17 — Pistolets pneumatiques (sans précision de l'outil)</option>
+              <option value="07.99">07.99 — Autre outil mécanique à main</option>
+            </optgroup>
+            <optgroup label="08 — Outils à main (motorisation non précisée)">
+              <option value="08.00">08.00 — Non précisé</option>
+              <option value="08.01">08.01 — Pour scier</option>
+              <option value="08.02">08.02 — Pour couper, séparer</option>
+              <option value="08.03">08.03 — Pour tailler, mortaiser, ciseler, rogner, tondre</option>
+              <option value="08.04">08.04 — Pour gratter, polir, poncer</option>
+              <option value="08.05">08.05 — Pour percer, tourner, visser</option>
+              <option value="08.06">08.06 — Pour clouer, riveter, agrafer</option>
+              <option value="08.07">08.07 — Pour coudre, tricoter</option>
+              <option value="08.08">08.08 — Pour souder, coller</option>
+              <option value="08.09">08.09 — Pour extraction de matériaux et travail du sol</option>
+              <option value="08.10">08.10 — Pour cirer, lubrifier, laver, nettoyer</option>
+              <option value="08.11">08.11 — Pour peindre</option>
+              <option value="08.12">08.12 — Pour maintenir, saisir</option>
+              <option value="08.13">08.13 — Pour travaux de cuisine (sauf couteaux)</option>
+              <option value="08.14">08.14 — Pour travaux médicaux / chirurgicaux — piquants, coupants</option>
+              <option value="08.15">08.15 — Pour travaux médicaux / chirurgicaux — non coupants, autres</option>
+              <option value="08.99">08.99 — Autre outil à main (motorisation non précisée)</option>
+            </optgroup>
+            <optgroup label="09 — Machines et équipements portables ou mobiles">
+              <option value="09.00">09.00 — Non précisé</option>
+              <option value="09.01">09.01 — Extraction et travail du sol — mines, carrières, bâtiment, TP</option>
+              <option value="09.02">09.02 — Travail du sol — agriculture</option>
+              <option value="09.03">09.03 — Machines mobiles hors travail du sol — chantier de construction</option>
+              <option value="09.04">09.04 — Machines mobiles de nettoyage des sols</option>
+              <option value="09.99">09.99 — Autre machine / équipement portable ou mobile</option>
+            </optgroup>
+            <optgroup label="10 — Machines et équipements fixes">
+              <option value="10.00">10.00 — Non précisé</option>
+              <option value="10.01">10.01 — Machines fixes d'extraction et de travail du sol</option>
+              <option value="10.02">10.02 — Machines pour la préparation des matériaux (concasser, pulvériser, filtrer, mélanger)</option>
+              <option value="10.03">10.03 — Machines de transformation — procédés chimiques (réacteurs, fermenteurs)</option>
+              <option value="10.04">10.04 — Machines de transformation — procédés à chaud (fours, séchoirs, étuves)</option>
+              <option value="10.05">10.05 — Machines de transformation — procédés à froid</option>
+              <option value="10.06">10.06 — Machines de transformation — autres procédés</option>
+              <option value="10.07">10.07 — Machines à former — par pressage, écrasement</option>
+              <option value="10.08">10.08 — Machines à former — calandrage, laminage, cylindres (papeterie)</option>
+              <option value="10.09">10.09 — Machines à former — injection, extrusion, soufflage, moulage, coulée</option>
+              <option value="10.10">10.10 — Machines d'usinage — raboter, fraiser, meuler, polir, tourner, percer</option>
+              <option value="10.11">10.11 — Machines d'usinage — scier</option>
+              <option value="10.12">10.12 — Machines d'usinage — couper, fendre, rogner (presse, cisaille, massicot, oxycoupage)</option>
+              <option value="10.13">10.13 — Machines de traitement de surface — nettoyer, laver, sécher, peindre, imprimer</option>
+              <option value="10.14">10.14 — Machines de traitement de surface — galvanisation, traitement électrolytique</option>
+              <option value="10.15">10.15 — Machines à assembler (souder, coller, clouer, visser, riveter, coudre, agrafer)</option>
+              <option value="10.16">10.16 — Machines à conditionner, emballer (remplir, étiqueter, fermer)</option>
+              <option value="10.17">10.17 — Autres machines d'industries spécifiques (contrôle, essais)</option>
+              <option value="10.18">10.18 — Machines spécifiques agricoles (hors groupes ci-dessus)</option>
+              <option value="10.99">10.99 — Autre machine / équipement fixe</option>
+            </optgroup>
+            <optgroup label="11 — Dispositifs de convoyage, transport et stockage">
+              <option value="11.00">11.00 — Non précisé</option>
+              <option value="11.01">11.01 — Convoyeurs fixes (tapis roulants, escaliers roulants)</option>
+              <option value="11.02">11.02 — Élévateurs, ascenseurs, monte-charges, vérins, crics</option>
+              <option value="11.03">11.03 — Grues fixes, mobiles, ponts roulants, matériels d'élévation à charge suspendue</option>
+              <option value="11.04">11.04 — Chariots de manutention (motorisés ou non)</option>
+              <option value="11.05">11.05 — Apparaux de levage : élingues, crochets, cordages</option>
+              <option value="11.06">11.06 — Stockage fixe (silos, réservoirs, citernes, bassins)</option>
+              <option value="11.07">11.07 — Stockage mobile (bennes, conteneurs mobiles)</option>
+              <option value="11.08">11.08 — Accessoires de stockage : rayonnages, palettes</option>
+              <option value="11.09">11.09 — Emballages divers, mobiles (récipients, bouteilles, caisses, extincteurs)</option>
+              <option value="11.99">11.99 — Autre dispositif de convoyage / stockage</option>
+            </optgroup>
+            <optgroup label="12 — Véhicules terrestres">
+              <option value="12.00">12.00 — Non précisé</option>
+              <option value="12.01">12.01 — Poids lourds : camions, bus, autocars</option>
+              <option value="12.02">12.02 — Véhicules légers : charges ou passagers</option>
+              <option value="12.03">12.03 — Deux / trois roues, motorisés ou non</option>
+              <option value="12.04">12.04 — Véhicules spéciaux : tracteurs, engins de chantier</option>
+              <option value="12.99">12.99 — Autre véhicule terrestre</option>
+            </optgroup>
+            <optgroup label="13 — Autres véhicules de transport">
+              <option value="13.00">13.00 — Non précisé</option>
+              <option value="13.01">13.01 — Sur rails / monorails suspendus — charges</option>
+              <option value="13.02">13.02 — Sur rails / monorails suspendus — passagers</option>
+              <option value="13.03">13.03 — Nautiques — charges</option>
+              <option value="13.04">13.04 — Nautiques — passagers</option>
+              <option value="13.05">13.05 — Nautiques — pêche</option>
+              <option value="13.06">13.06 — Aériens — charges</option>
+              <option value="13.07">13.07 — Aériens — passagers</option>
+              <option value="13.99">13.99 — Autre véhicule de transport</option>
+            </optgroup>
+            <optgroup label="14 — Matériaux, objets, produits, éléments de machines, poussières">
+              <option value="14.00">14.00 — Non précisé</option>
+              <option value="14.01">14.01 — Matériaux de construction (pierres, béton, ciment, briques)</option>
+              <option value="14.02">14.02 — Éléments constitutifs de machine / véhicule (châssis, carter, carrosserie)</option>
+              <option value="14.03">14.03 — Pièces travaillées ou outils de machines (fragments, éclats)</option>
+              <option value="14.04">14.04 — Copeaux, débris de transformation (non repris ailleurs)</option>
+              <option value="14.05">14.05 — Particules, poussières, éclats, projections, échardes</option>
+              <option value="14.06">14.06 — Produits de l'agriculture (grains, paille)</option>
+              <option value="14.07">14.07 — Produits pour l'agriculture, l'élevage (engrais, aliments bétail)</option>
+              <option value="14.08">14.08 — Produits stockés (objets et emballages en stockage)</option>
+              <option value="14.09">14.09 — Produits stockés — en rouleaux, bobines</option>
+              <option value="14.10">14.10 — Charges sur dispositif de manutention mécanique</option>
+              <option value="14.11">14.11 — Charges suspendues à une grue / dispositif de mise à niveau</option>
+              <option value="14.12">14.12 — Charges manutentionnées à la main</option>
+              <option value="14.99">14.99 — Autre matériau / objet / produit</option>
+            </optgroup>
+            <optgroup label="15 — Substances chimiques, explosives, radioactives, biologiques">
+              <option value="15.00">15.00 — Non précisé</option>
+              <option value="15.01">15.01 — Matières caustiques, corrosives (solides, liquides ou gazeuses)</option>
+              <option value="15.02">15.02 — Matières nocives, toxiques (solides, liquides ou gazeuses)</option>
+              <option value="15.03">15.03 — Matières inflammables (solides, liquides ou gazeuses)</option>
+              <option value="15.04">15.04 — Matières explosives, réactives (solides, liquides ou gazeuses)</option>
+              <option value="15.05">15.05 — Gaz, vapeurs sans effets spécifiques (inertes, asphyxiants)</option>
+              <option value="15.06">15.06 — Substances radioactives</option>
+              <option value="15.07">15.07 — Substances biologiques</option>
+              <option value="15.08">15.08 — Substances sans danger spécifique (eau, matières inertes)</option>
+              <option value="15.99">15.99 — Autre substance chimique / radioactive / biologique</option>
+            </optgroup>
+            <optgroup label="16 — Dispositifs et équipements de sécurité">
+              <option value="16.00">16.00 — Non précisé</option>
+              <option value="16.01">16.01 — Dispositifs de sécurité sur machine</option>
+              <option value="16.02">16.02 — Dispositifs de protection individuelle (EPI)</option>
+              <option value="16.03">16.03 — Dispositifs et appareils de secours</option>
+              <option value="16.99">16.99 — Autre dispositif de sécurité</option>
+            </optgroup>
+            <optgroup label="17 — Équipements de bureau, personnels, sport, armes, domestique">
+              <option value="17.00">17.00 — Non précisé</option>
+              <option value="17.01">17.01 — Mobilier</option>
+              <option value="17.02">17.02 — Équipements informatiques, bureautique, reprographie, communication</option>
+              <option value="17.03">17.03 — Équipements d'enseignement, écriture, dessin (machine à écrire, timbrer)</option>
+              <option value="17.04">17.04 — Objets et équipements pour le sport et les jeux</option>
+              <option value="17.05">17.05 — Armes</option>
+              <option value="17.06">17.06 — Objets personnels, vêtements</option>
+              <option value="17.07">17.07 — Instruments de musique</option>
+              <option value="17.08">17.08 — Appareillage, ustensiles, linge de type domestique (usage professionnel)</option>
+              <option value="17.99">17.99 — Autre équipement de bureau / personnel / sport / arme</option>
+            </optgroup>
+            <optgroup label="18 — Organismes vivants et êtres humains">
+              <option value="18.00">18.00 — Non précisé</option>
+              <option value="18.01">18.01 — Arbres, plantes, cultures</option>
+              <option value="18.02">18.02 — Animaux domestiques et d'élevage</option>
+              <option value="18.03">18.03 — Animaux sauvages, insectes, serpents</option>
+              <option value="18.04">18.04 — Micro-organismes</option>
+              <option value="18.05">18.05 — Agents infectieux viraux</option>
+              <option value="18.06">18.06 — Humains</option>
+              <option value="18.99">18.99 — Autre organisme vivant</option>
+            </optgroup>
+            <optgroup label="19 — Déchets en vrac">
+              <option value="19.00">19.00 — Non précisé</option>
+              <option value="19.01">19.01 — Déchets de matières, produits, matériaux, objets</option>
+              <option value="19.02">19.02 — Déchets de substances chimiques</option>
+              <option value="19.03">19.03 — Déchets biologiques, végétaux, animaux</option>
+              <option value="19.99">19.99 — Autre déchet en vrac</option>
+            </optgroup>
+            <optgroup label="20 — Phénomènes physiques et éléments naturels">
+              <option value="20.00">20.00 — Non précisé</option>
+              <option value="20.01">20.01 — Phénomènes physiques (bruit, radiation, lumière, arc, pression)</option>
+              <option value="20.02">20.02 — Éléments naturels et atmosphériques (eau, boue, pluie, neige, verglas, vent)</option>
+              <option value="20.03">20.03 — Catastrophes naturelles (inondation, volcanisme, tremblement de terre)</option>
+              <option value="20.99">20.99 — Autre phénomène physique / élément naturel</option>
+            </optgroup>
+            <option value="99.00">99.00 — Autre agent matériel non listé — préciser ci-dessous</option>
+          </select>
+          <div class="composante-autre" id="codeAgentAutre">
+            <input id="codeAgentAutre-val" placeholder="Code Tableau B (ex. 10.12, 11.05…)" oninput="autosave()">
+          </div>
+          <span class="composante-tip">197 codes officiels — Annexe II.2 CBET (version 07/03/2022)</span>
+        </div>
+      </div>
+    </div>
+    <div class="fg2" style="align-items:stretch;margin-top:12px">
+      <div>
+        <div class="composante-card">
+          <div class="composante-label">3 — Nature de la lésion <span style="font-size:10px;color:#888;font-weight:400">(Tableau E — Annexe II.3)</span></div>
+          <select id="codeLesion" style="width:100%;padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC" onchange="toggleAutre('codeLesion','codeLesionAutre');updateClassification();autosave()">
+            <option value="">— Sélectionner —</option>
+            <option value="000">000 — Blessure inconnue / informations manquantes</option>
+            <optgroup label="010 — Plaies et blessures superficielles">
+              <option value="010">010 — Non précisé</option>
+              <option value="011">011 — Blessures superficielles (contusions, hématomes, écorchures, ampoules, morsures non venimeuses)</option>
+              <option value="012">012 — Plaies ouvertes (coupures, lacérations, déchirures, arrachement d'ongle)</option>
+              <option value="013">013 — Plaies avec pertes de substance</option>
+              <option value="019">019 — Autre plaie / blessure superficielle</option>
+            </optgroup>
+            <optgroup label="020 — Fractures osseuses">
+              <option value="020">020 — Non précisé</option>
+              <option value="021">021 — Fracture fermée</option>
+              <option value="022">022 — Fracture ouverte</option>
+              <option value="029">029 — Autre fracture osseuse</option>
+            </optgroup>
+            <optgroup label="030 — Luxations, entorses et foulures">
+              <option value="030">030 — Non précisé</option>
+              <option value="031">031 — Luxations (subluxations, déplacements osseux)</option>
+              <option value="032">032 — Entorses et foulures (ruptures, déchirures musculo-tendineuses, hernies d'effort)</option>
+              <option value="039">039 — Autre luxation / entorse / foulure</option>
+            </optgroup>
+            <optgroup label="040 — Amputations traumatiques">
+              <option value="040">040 — Amputations traumatiques (perte de parties du corps)</option>
+              <option value="041">041 — Amputations</option>
+            </optgroup>
+            <optgroup label="050 — Commotions et traumatismes internes">
+              <option value="050">050 — Non précisé</option>
+              <option value="051">051 — Commotions (blessures intracrâniennes)</option>
+              <option value="052">052 — Traumatismes internes (organes intrathoraciques, intra-abdominaux, pelviens)</option>
+              <option value="053">053 — Traumatisme interne — type non précisé (à vérifier)</option>
+              <option value="054">054 — Autre traumatisme interne (à vérifier)</option>
+              <option value="059">059 — Autre commotion / traumatisme interne</option>
+            </optgroup>
+            <optgroup label="060 — Brûlures, scalds et gelures">
+              <option value="060">060 — Non précisé</option>
+              <option value="061">061 — Brûlures thermiques (feu, liquide bouillant, friction, soleil, électricité)</option>
+              <option value="062">062 — Brûlures chimiques (corrosions externes)</option>
+              <option value="063">063 — Gelures</option>
+              <option value="069">069 — Autre brûlure / scald / gelure</option>
+            </optgroup>
+            <optgroup label="070 — Empoisonnements et infections">
+              <option value="070">070 — Non précisé</option>
+              <option value="071">071 — Empoisonnements aigus (injection, ingestion, inhalation de toxiques, morsures venimeuses)</option>
+              <option value="072">072 — Infections aiguës (virus, bactérie, agents infectieux)</option>
+              <option value="079">079 — Autre empoisonnement / infection</option>
+            </optgroup>
+            <optgroup label="080 — Noyades et asphyxies">
+              <option value="080">080 — Non précisé</option>
+              <option value="081">081 — Asphyxies (y c. corps étranger dans voies respiratoires, suppression d'oxygène)</option>
+              <option value="082">082 — Noyades et submersions non mortelles</option>
+              <option value="089">089 — Autre noyade / asphyxie</option>
+            </optgroup>
+            <optgroup label="090 — Effets du bruit, des vibrations et de la pression">
+              <option value="090">090 — Non précisé</option>
+              <option value="091">091 — Perte auditive aiguë</option>
+              <option value="092">092 — Effets de la pression (barotrauma)</option>
+              <option value="099">099 — Autre effet du bruit / vibrations / pression</option>
+            </optgroup>
+            <optgroup label="100 — Effets des extrêmes de température, lumière et radiations">
+              <option value="100">100 — Non précisé</option>
+              <option value="101">101 — Chaleur et coups de soleil (coup de chaleur, insolation)</option>
+              <option value="102">102 — Effets des radiations non thermiques (rayons X, UV, ionisants, ophtalmie électrique)</option>
+              <option value="103">103 — Effets du froid (hors gelures)</option>
+              <option value="109">109 — Autre effet des extrêmes de température / lumière / radiations</option>
+            </optgroup>
+            <optgroup label="110 — Chocs">
+              <option value="110">110 — Non précisé</option>
+              <option value="111">111 — Chocs consécutifs à des agressions et menaces</option>
+              <option value="112">112 — Chocs traumatiques (électrique, foudre, choc instantané ou retardé)</option>
+              <option value="119">119 — Autres types de chocs (anaphylactique, catastrophes naturelles)</option>
+            </optgroup>
+            <option value="120">120 — Lésions multiples (plusieurs lésions de gravité comparable)</option>
+            <option value="999">999 — Autre lésion déterminée non classée — préciser ci-dessous</option>
+          </select>
+          <div class="composante-autre" id="codeLesionAutre">
+            <input id="codeLesionAutre-val" placeholder="Code Tableau E officiel (ex. 032, 091…)" oninput="autosave()">
+          </div>
+          <span class="composante-tip">50 codes officiels — Annexe II.3 CBET (version 07/03/2022)</span>
+        </div>
+      </div>
+      <div>
+        <div class="composante-card">
+          <div class="composante-label">4 — Localisation de la lésion <span style="font-size:10px;color:#888;font-weight:400">(Tableau F — Annexe II.4)</span></div>
+          <select id="codeLoc" style="width:100%;padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC" onchange="toggleAutre('codeLoc','codeLocAutre');updateClassification();autosave()">
+            <option value="">— Sélectionner —</option>
+            <option value="00">00 — Localisation non déterminée</option>
+            <optgroup label="10 — Tête">
+              <option value="10">10 — Tête, sans autre spécification</option>
+              <option value="11">11 — Tête (caput), cerveau, nerfs crâniens et vaisseaux cérébraux</option>
+              <option value="12">12 — Zone faciale</option>
+              <option value="13">13 — Œil(s)</option>
+              <option value="14">14 — Oreille(s)</option>
+              <option value="15">15 — Dentition</option>
+              <option value="18">18 — Tête, multiples endroits affectés</option>
+              <option value="19">19 — Autres parties de la tête</option>
+            </optgroup>
+            <optgroup label="20 — Cou">
+              <option value="20">20 — Cou, sans autre spécification</option>
+              <option value="21">21 — Cou, y compris colonne vertébrale et vertèbres cervicales</option>
+              <option value="29">29 — Autres parties du cou</option>
+            </optgroup>
+            <optgroup label="30 — Dos">
+              <option value="30">30 — Dos, sans autre spécification</option>
+              <option value="31">31 — Dos, y compris colonne vertébrale et vertèbres dorsales</option>
+              <option value="39">39 — Autres parties du dos</option>
+            </optgroup>
+            <optgroup label="40 — Torse et organes">
+              <option value="40">40 — Torse et organes, sans autre spécification</option>
+              <option value="41">41 — Cage thoracique, côtes y compris omoplates et articulations</option>
+              <option value="42">42 — Poitrine, y compris organes</option>
+              <option value="43">43 — Abdomen et pelvis, y compris organes</option>
+              <option value="48">48 — Torse, multiples endroits affectés</option>
+              <option value="49">49 — Autres parties du torse</option>
+            </optgroup>
+            <optgroup label="50 — Membres supérieurs">
+              <option value="50">50 — Membres supérieurs, sans autre spécification</option>
+              <option value="51">51 — Épaule et articulations de l'épaule</option>
+              <option value="52">52 — Bras, y compris coude</option>
+              <option value="53">53 — Main</option>
+              <option value="54">54 — Doigt(s)</option>
+              <option value="55">55 — Poignet</option>
+              <option value="58">58 — Membres supérieurs, multiples endroits affectés</option>
+              <option value="59">59 — Autres parties des membres supérieurs</option>
+            </optgroup>
+            <optgroup label="60 — Membres inférieurs">
+              <option value="60">60 — Membres inférieurs, sans autre spécification</option>
+              <option value="61">61 — Hanche et articulation de la hanche</option>
+              <option value="62">62 — Jambe, y compris genou</option>
+              <option value="63">63 — Cheville</option>
+              <option value="64">64 — Pied</option>
+              <option value="65">65 — Orteil(s)</option>
+              <option value="68">68 — Membres inférieurs, multiples endroits affectés</option>
+              <option value="69">69 — Autres parties des membres inférieurs</option>
+            </optgroup>
+            <optgroup label="70 — Ensemble du corps et localisations multiples">
+              <option value="70">70 — Ensemble du corps et endroits multiples, sans autre spécification</option>
+              <option value="71">71 — Ensemble du corps (effets systémiques)</option>
+              <option value="78">78 — Multiples endroits du corps affectés</option>
+            </optgroup>
+            <option value="99">99 — Autres parties du corps — préciser ci-dessous</option>
+          </select>
+          <div class="composante-autre" id="codeLocAutre">
+            <input id="codeLocAutre-val" placeholder="Code Tableau F officiel (ex. 54, 71…)" oninput="autosave()">
+          </div>
+          <span class="composante-tip">41 codes officiels — Annexe II.4 CBET (version 07/03/2022)</span>
+        </div>
+      </div>
+    </div>
+    <div id="benin-note" style="display:none;background:#F9FAFB;border-left:4px solid #6B7280;padding:12px 16px;border-radius:0 6px 6px 0;font-size:12px;color:#4B5563;margin-top:12px;line-height:1.6">
+      Un accident <strong>bénin</strong> (premiers soins suffisants, sans incapacité ni perte de salaire) ne nécessite pas de déclaration à l'assurance — l'encodage des 4&nbsp;composantes FEDRIS reste <em>optionnel</em> pour ce type. Si la lésion évolue, repassez en « Déclaration obligatoire » ou « Grave ».
+    </div>
+    <div id="classification-result" style="display:none;border-left:4px solid #16a34a;padding:14px 16px;border-radius:0 6px 6px 0;margin:16px 0 0;font-size:13px;line-height:1.6"></div>
+    <div class="section-title" style="margin-top:14px">Cas particuliers — Obligations complémentaires</div>
+    <div class="cas-part-box">
+      <div style="font-size:11px;margin-bottom:10px">Cochez si l'accident relève d'un ou plusieurs cas particuliers — des obligations de notification supplémentaires s'appliquent en plus des délais standards.</div>
+      <div class="cas-row">
+        <input type="checkbox" id="casElectrique" onchange="toggleCasnote('casElectrique','note-elec');autosave()">
+        <label for="casElectrique"><strong>Accident électrique</strong> — RGIE art. 268.8</label>
+      </div>
+      <div class="cas-note" id="note-elec">Notification supplémentaire : SPF Économie — gas.elec@economie.fgov.be (immédiatement)</div>
+      <div class="cas-row">
+        <input type="checkbox" id="casBiologique" onchange="toggleCasnote('casBiologique','note-bio');autosave()">
+        <label for="casBiologique"><strong>Agent biologique type 3 ou 4</strong> — Art. VII.1-76 CBET</label>
+      </div>
+      <div class="cas-note" id="note-bio">Notification CBE immédiatement (délai le plus court)</div>
+      <div class="cas-row">
+        <input type="checkbox" id="casRadiations" onchange="toggleCasnote('casRadiations','note-rad');autosave()">
+        <label for="casRadiations"><strong>Radiations ionisantes</strong> — AR 20/07/2001</label>
+      </div>
+      <div class="cas-note" id="note-rad">Notification CBE dans les délais les plus courts (AR 20/07/2001)</div>
+      <div class="cas-row">
+        <input type="checkbox" id="casAscenseur" onchange="toggleCasnote('casAscenseur','note-asc');autosave()">
+        <label for="casAscenseur"><strong>Accident impliquant un ascenseur</strong> — AR 09/03/2003</label>
+      </div>
+      <div class="cas-note" id="note-asc">Notification SPF Économie immédiatement (AR 09/03/2003)</div>
+      <div class="cas-row">
+        <input type="checkbox" id="casInterimaire" onchange="toggleCasnote('casInterimaire','note-int');autosave()">
+        <label for="casInterimaire"><strong>Victime intérimaire</strong></label>
+      </div>
+      <div class="cas-note" id="note-int">ETI = déclaration assurance / Entreprise utilisatrice = rapport circonstancié + rapport annuel statistique</div>
+      <div class="cas-row">
+        <input type="checkbox" id="casSousTraitant" onchange="toggleCasnote('casSousTraitant','note-st');autosave()">
+        <label for="casSousTraitant"><strong>Victime sous-traitant</strong></label>
+      </div>
+      <div class="cas-note" id="note-st">Enquête conjointe obligatoire / SIPP entreprise utilisatrice = rapport mensuel</div>
+    </div>
+  </div>
+
+  <!-- ── CHECKLIST ENTRETIENS ────────────────────────────────────────── -->
+  <div class="card" id="entretiens-card">
+    <div class="card-title">Checklist — Entretiens &amp; investigation</div>
+    <div class="ref-box">Cochez chaque étape d'investigation réalisée. Le rapport circonstancié doit s'appuyer sur les entretiens avec la victime, les témoins et le responsable (Art. II.3-37 CBET).</div>
+    <div class="ent-hd">
+      <span></span>
+      <span>Entretien / étape</span>
+      <span>Date</span>
+      <span>Interlocuteur / note</span>
+    </div>
+    <div class="entretien-grid">
+      <input type="checkbox" id="ent-vic-fait" onchange="updateEntretiensProgress();autosave()">
+      <label for="ent-vic-fait">Entretien victime</label>
+      <input type="date" id="ent-vic-date" oninput="autosave()">
+      <input type="text" id="ent-vic-nom" placeholder="Nom de la victime" oninput="autosave()">
+    </div>
+    <div class="entretien-grid">
+      <input type="checkbox" id="ent-tem-fait" onchange="updateEntretiensProgress();autosave()">
+      <label for="ent-tem-fait">Entretien témoin(s)</label>
+      <input type="date" id="ent-tem-date" oninput="autosave()">
+      <input type="text" id="ent-tem-nom" placeholder="Nom du/des témoin(s)" oninput="autosave()">
+    </div>
+    <div class="entretien-grid">
+      <input type="checkbox" id="ent-resp-fait" onchange="updateEntretiensProgress();autosave()">
+      <label for="ent-resp-fait">Entretien responsable direct</label>
+      <input type="date" id="ent-resp-date" oninput="autosave()">
+      <input type="text" id="ent-resp-nom" placeholder="Nom du responsable" oninput="autosave()">
+    </div>
+    <div class="entretien-grid">
+      <input type="checkbox" id="ent-lieu-fait" onchange="updateEntretiensProgress();autosave()">
+      <label for="ent-lieu-fait">Visite du lieu de l'accident</label>
+      <input type="date" id="ent-lieu-date" oninput="autosave()">
+      <span></span>
+    </div>
+    <div class="entretien-grid">
+      <input type="checkbox" id="ent-docs-fait" onchange="updateEntretiensProgress();autosave()">
+      <label for="ent-docs-fait">Analyse documentaire</label>
+      <input type="text" id="ent-docs-note" placeholder="AR, procédures, fiches de poste consultés…" oninput="autosave()">
+      <span></span>
+    </div>
+    <div class="ent-progress" id="ent-progress">Progression : 0 / 5 étapes d'investigation complétées</div>
+  </div>
 
   <div class="card">
     <div class="card-title">7. Personnes ayant collaboré à l'analyse</div>
@@ -756,10 +1356,10 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
     <div class="ec-desc">L'export Word reproduit fidèlement la structure officielle FOR-GR-103 en 9 sections, conforme à l'Art. II.3-37 du Code du bien-être au travail.</div>
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
       <button class="btn btn-o" onclick="exportWord()" style="font-size:14px;padding:12px 28px">
-        ⬇ Exporter en Word (.docx)
+        Exporter en Word (.docx)
       </button>
       <button class="btn btn-w" onclick="buildPreview()" style="font-size:14px;padding:12px 28px">
-        👁 Aperçu du rapport
+        Aperçu du rapport
       </button>
     </div>
   </div>
@@ -774,10 +1374,10 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
   <div class="card">
     <div class="card-title">Gestion des données</div>
     <div class="brow">
-      <button class="btn btn-w" onclick="exportJSON()">💾 Sauvegarder (JSON)</button>
-      <button class="btn btn-w" onclick="importJSON()">📂 Charger un fichier JSON</button>
+      <button class="btn btn-w" onclick="exportJSON()">Sauvegarder (JSON)</button>
+      <button class="btn btn-w" onclick="importJSON()">Charger un fichier JSON</button>
       <input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadJSON(event)">
-      <button class="btn btn-d" onclick="clearAll()">🗑 Effacer toutes les données</button>
+      <button class="btn btn-d" onclick="clearAll()">Effacer toutes les données</button>
     </div>
   </div>
 
@@ -796,13 +1396,22 @@ body{font-family:Arial,sans-serif;background:#F5F0EE;color:#2C2C2A;font-size:14p
 </div>
 
 <script>
+// ─── PHOTOS — ÉTAT GLOBAL ────────────────────────────────────────────────────
+var atgPhotos = []; // [{data:dataURL, w:px, h:px, titre:'', commentaire:''}]
+var PHOTO_MAX = 10, PHOTO_MAXPX = 800, PHOTO_QUALITY = 0.60;
+var atcUploadedImg = null; // {dataURL, width, height}
+var typeAccidentAutoSet = false; // true = valeur posée par calcul auto, false = saisie manuelle
+var classifOverride = null; // null = valeur auto, {type:'', justif:''} = override manuel
+
 // ─── STEP NAV ────────────────────────────────────────────────────────────────
 var currentStep=1;
-var stepNames=['','Identification','Circonstances','Causes','Recommandations','Participants','Export'];
+var stepNames=['','Identification','Circonstances','Causes','Recommandations','Suivi','Export'];
 function goStep(n){
-  autosave();
+  try{autosave();}catch(e){console.error('autosave error',e);}
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
-  document.getElementById('panel'+n).classList.add('active');
+  var target=document.getElementById('panel'+n);
+  if(!target){console.error('panel'+n+' introuvable');return;}
+  target.classList.add('active');
   document.querySelectorAll('.prog-step').forEach(function(s,i){
     s.classList.remove('active','done');
     if(i+1===n)s.classList.add('active');
@@ -811,6 +1420,8 @@ function goStep(n){
   currentStep=n;
   document.getElementById('nav-step-info').textContent='Étape '+n+' / 6 — '+stepNames[n];
   window.scrollTo(0,0);
+  if(n===1)updateEntretiensProgress();
+  if(n===4)updateCausesCoverage();
 }
 
 // ─── PARTICIPANTS DYNAMIQUES ─────────────────────────────────────────────────
@@ -827,35 +1438,37 @@ function mkPersonRow(id, placeholder1, placeholder2, placeholder3){
   return d;
 }
 function addParticipant(){
-  var el=mkPersonRow('p','ex. M. DUPONT Jean','Conseiller en prévention niveau 1','ex. Nexum Advisory');
+  var el=mkPersonRow('p','ex. M./Mme PRÉNOM NOM','Conseiller en prévention niveau 1','ex. Nexum Advisory');
   document.getElementById('participants-list').appendChild(el);
 }
 function addRedacteur(){
   var d=document.createElement('div');
   d.className='person-card';
-  d.innerHTML='<div class="person-card-head"><span class="pct">Rédacteur</span><button class="btn-d" onclick="this.closest(\'.person-card\').remove();autosave()">✕ Supprimer</button></div>'
-    +'<div class="fg3">'
-    +'<div class="field"><label>Civilité & Nom Prénom</label><input class="rd-nom" placeholder="ex. M. DUPONT Jean"></div>'
-    +'<div class="field"><label>Fonction</label><input class="rd-fonc" placeholder="ex. Conseiller en prévention"></div>'
+  d.innerHTML='<div class="person-card-head"><span class="pct">CP Rédacteur</span><button class="btn-d" onclick="this.closest(\'.person-card\').remove();autosave()">✕ Supprimer</button></div>'
+    +'<div class="fg4">'
+    +'<div class="field"><label>Civilité & Nom Prénom</label><input class="rd-nom" placeholder="ex. M./Mme PRÉNOM NOM"></div>'
+    +'<div class="field"><label>Niveau CP</label><select class="rd-niveau"><option value="">—</option><option value="1">Niveau 1</option><option value="2">Niveau 2</option></select></div>'
+    +'<div class="field"><label>Fonction complémentaire</label><input class="rd-fonc" placeholder="ex. Conseiller en prévention interne"></div>'
     +'<div class="field"><label>Email</label><input class="rd-email" type="email" placeholder="email@..."></div>'
     +'</div>';
-  d.querySelectorAll('input').forEach(function(inp){inp.addEventListener('input',autosave)});
+  d.querySelectorAll('input,select').forEach(function(el){el.addEventListener('input',autosave);el.addEventListener('change',autosave)});
   document.getElementById('redacteurs-list').appendChild(d);
 }
 function addCollab(){
-  var el=mkPersonRow('c','ex. MME MARTIN Claire','Aide-ménagère','ex. Nom Entreprise');
+  var el=mkPersonRow('c','ex. Mme PRÉNOM NOM','Aide-ménagère','ex. Nom Entreprise');
   document.getElementById('collab-list').appendChild(el);
 }
 function addAuteur(){
   var d=document.createElement('div');
   d.className='person-card';
-  d.innerHTML='<div class="person-card-head"><span class="pct">Auteur</span><button class="btn-d" onclick="this.closest(\'.person-card\').remove();autosave()">✕ Supprimer</button></div>'
-    +'<div class="fg3">'
-    +'<div class="field"><label>Civilité & Nom Prénom</label><input class="au-nom" placeholder="ex. M. DUPONT Jean"></div>'
-    +'<div class="field"><label>Fonction</label><input class="au-fonc" placeholder="ex. Conseiller en prévention niveau 1"></div>'
+  d.innerHTML='<div class="person-card-head"><span class="pct">Conseiller en Prévention</span><button class="btn-d" onclick="this.closest(\'.person-card\').remove();autosave()">✕ Supprimer</button></div>'
+    +'<div class="fg4">'
+    +'<div class="field"><label>Civilité & Nom Prénom</label><input class="au-nom" placeholder="ex. M./Mme PRÉNOM NOM"></div>'
+    +'<div class="field"><label>Niveau CP</label><select class="au-niveau"><option value="">—</option><option value="1">Niveau 1</option><option value="2">Niveau 2</option></select></div>'
+    +'<div class="field"><label>Fonction complémentaire</label><input class="au-fonc" placeholder="ex. Conseiller en prévention interne / SEPP"></div>'
     +'<div class="field"><label>Email</label><input class="au-email" type="email" placeholder="email@..."></div>'
     +'</div>';
-  d.querySelectorAll('input').forEach(function(inp){inp.addEventListener('input',autosave)});
+  d.querySelectorAll('input,select').forEach(function(el){el.addEventListener('input',autosave);el.addEventListener('change',autosave)});
   document.getElementById('auteur-list').appendChild(d);
 }
 function addDistrib(){
@@ -887,9 +1500,16 @@ function addCause(type){
 // ─── RECOMMANDATIONS ────────────────────────────────────────────────────────
 function addReco(type){
   var d=document.createElement('div');
-  d.style.cssText='display:flex;align-items:flex-start;gap:8px;margin-bottom:8px';
-  d.innerHTML='<textarea style="flex:1;padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC;resize:vertical;min-height:50px" placeholder="Rédigez la recommandation..." oninput="autosave()"></textarea>'
-    +'<button class="btn-d" style="margin-top:4px" onclick="this.parentNode.remove();autosave()">✕</button>';
+  d.className='reco-item';
+  d.style.cssText='margin-bottom:10px;padding:10px;background:#FDFCFC;border:1px solid #E0D8D4;border-radius:6px';
+  d.innerHTML='<div style="display:flex;align-items:flex-start;gap:8px">'
+    +'<textarea class="reco-text" style="flex:1;padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#fff;resize:vertical;min-height:50px" placeholder="Rédigez la recommandation..." oninput="autosave()"></textarea>'
+    +'<button class="btn-d" style="margin-top:4px;flex-shrink:0" onclick="this.closest(\'.reco-item\').remove();updateCausesCoverage();autosave()">✕</button>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;gap:6px;margin-top:5px">'
+    +'<span style="font-size:11px;color:#888;white-space:nowrap">↳ Cause(s) adressée(s) :</span>'
+    +'<input type="text" class="reco-lien" placeholder="ex. Prim1, Sec2 — ou description courte" oninput="updateCausesCoverage();autosave()">'
+    +'</div>';
   document.getElementById('reco-'+type+'-list').appendChild(d);
 }
 
@@ -901,7 +1521,7 @@ function addPA(){
     +'<input placeholder="Responsable..." oninput="autosave()">'
     +'<input placeholder="Délai..." oninput="autosave()">'
     +'<button class="btn-d" onclick="this.closest(\'.pa-row\').remove();autosave()">✕</button>';
-  document.getElementById('pa-list').appendChild(d);
+  var paList=document.getElementById('pa-list');if(paList)paList.appendChild(d);
 }
 
 // ─── TOGGLE AFFICHAGE ───────────────────────────────────────────────────────
@@ -914,18 +1534,484 @@ document.getElementById('photosDisponibles').addEventListener('change',function(
   autosave();
 });
 
+// ─── PHOTOS — FONCTIONS ──────────────────────────────────────────────────────
+function photoCompress(file, maxPx, quality, cb){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var w=img.width,h=img.height;
+      var scale=Math.min(1,maxPx/Math.max(w,h));
+      var cw=Math.round(w*scale),ch=Math.round(h*scale);
+      var canvas=document.createElement('canvas');
+      canvas.width=cw;canvas.height=ch;
+      canvas.getContext('2d').drawImage(img,0,0,cw,ch);
+      cb(canvas.toDataURL('image/jpeg',quality),cw,ch);
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function photoAddFiles(files){
+  var added=0;
+  for(var i=0;i<files.length&&atgPhotos.length+added<PHOTO_MAX;i++){
+    (function(f){
+      photoCompress(f,PHOTO_MAXPX,PHOTO_QUALITY,function(dataUrl,w,h){
+        atgPhotos.push({data:dataUrl,w:w,h:h,titre:'',commentaire:''});
+        photosRender();autosave();
+      });
+    })(files[i]);
+    added++;
+  }
+}
+function photoRemove(idx){
+  atgPhotos.splice(idx,1);
+  photosRender();autosave();
+}
+function escAttr(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function atgPhotoSetTitre(el){var i=parseInt(el.getAttribute('data-pidx'));if(!isNaN(i)&&atgPhotos[i])atgPhotos[i].titre=el.value;autosave();}
+function atgPhotoSetCommentaire(el){var i=parseInt(el.getAttribute('data-pidx'));if(!isNaN(i)&&atgPhotos[i])atgPhotos[i].commentaire=el.value;autosave();}
+function photosRender(){
+  var list=document.getElementById('photo-list');
+  var warn=document.getElementById('photo-warn');
+  var addBtn=document.getElementById('photo-add-btn');
+  if(!list)return;
+  var h='';
+  for(var idx=0;idx<atgPhotos.length;idx++){
+    var p=atgPhotos[idx];
+    h+='<div style="display:grid;grid-template-columns:130px 1fr;gap:12px;align-items:start;background:#F5F0EE;border:1px solid #E0D8D4;border-radius:8px;padding:12px;margin-bottom:10px">'
+      +'<img src="'+p.data+'" alt="Photo '+(idx+1)+'" style="width:120px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #D3C9C2;display:block">'
+      +'<div style="display:flex;flex-direction:column;gap:6px">'
+      +'<label style="font-size:11px;color:#888;font-weight:600;display:block">Titre</label>'
+      +'<input type="text" data-pidx="'+idx+'" placeholder="ex. Zone de chute" value="'+escAttr(p.titre)+'" oninput="atgPhotoSetTitre(this)" style="width:100%;padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC;color:#2C2C2A;box-sizing:border-box">'
+      +'<label style="font-size:11px;color:#888;font-weight:600;display:block">Commentaire</label>'
+      +'<textarea data-pidx="'+idx+'" placeholder="Description détaillée de la photo…" rows="3" oninput="atgPhotoSetCommentaire(this)" style="width:100%;padding:7px 10px;border:1px solid #D3C9C2;border-radius:6px;font-size:12px;font-family:Arial,sans-serif;background:#FDFCFC;color:#2C2C2A;resize:vertical;min-height:48px;box-sizing:border-box">'+escHtml(p.commentaire)+'</textarea>'
+      +'<button type="button" onclick="photoRemove('+idx+')" style="margin-top:4px;padding:5px 10px;border:1px solid #e74c3c;color:#e74c3c;background:#fff;border-radius:6px;cursor:pointer;font-size:12px;font-family:Arial,sans-serif;align-self:flex-start">✕ Supprimer</button>'
+      +'</div></div>';
+  }
+  list.innerHTML=h;
+  var full=atgPhotos.length>=PHOTO_MAX;
+  if(warn){
+    if(full){warn.style.display='block';warn.textContent='Limite de '+PHOTO_MAX+' photos atteinte.';}
+    else{warn.style.display='none';}
+  }
+  if(addBtn)addBtn.style.display=full?'none':'';
+  var cb=document.getElementById('photosDisponibles');
+  if(cb&&atgPhotos.length>0&&!cb.checked){
+    cb.checked=true;
+    var pb=document.getElementById('photos-block');
+    if(pb)pb.style.display='block';
+  }
+}
+
+// ─── TOGGLES CONDITIONNELS ──────────────────────────────────────────────────
+function toggleTemoinNom(){
+  var sel=document.getElementById('vd_temoin');
+  var blk=document.getElementById('vd_temoinNom-block');
+  if(blk)blk.style.display=(sel&&(sel.value==='oui'||sel.value==='indirect'))?'block':'none';
+}
+function toggleArdaRef(){
+  var sel=document.getElementById('vd_arda');
+  var inp=document.getElementById('vd_arda_ref');
+  if(inp)inp.style.display=(sel&&sel.value==='oui')?'block':'none';
+}
+// ─── ATC UPLOAD ──────────────────────────────────────────────────────────────
+function atcHandleUpload(files){
+  if(!files||!files[0])return;
+  var f=files[0];
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      atcUploadedImg={dataURL:e.target.result,width:img.naturalWidth||800,height:img.naturalHeight||400};
+      var prev=document.getElementById('atc-upload-preview');
+      var imgEl=document.getElementById('atc-upload-img');
+      var lbl=document.getElementById('atc-upload-name');
+      var clrBtn=document.getElementById('atc-clear-upload-btn');
+      if(prev)prev.style.display='block';
+      if(imgEl)imgEl.src=e.target.result;
+      if(lbl)lbl.textContent=f.name+' ('+img.naturalWidth+'×'+img.naturalHeight+'px)';
+      if(clrBtn)clrBtn.style.display='';
+      autosave();
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(f);
+}
+function atcClearUpload(){
+  atcUploadedImg=null;
+  var prev=document.getElementById('atc-upload-preview');
+  var imgEl=document.getElementById('atc-upload-img');
+  var lbl=document.getElementById('atc-upload-name');
+  var clrBtn=document.getElementById('atc-clear-upload-btn');
+  if(prev)prev.style.display='none';
+  if(imgEl)imgEl.src='';
+  if(lbl)lbl.textContent='';
+  if(clrBtn)clrBtn.style.display='none';
+  autosave();
+}
+function toggleArbreUpload(){
+  var cb=document.getElementById('pasArbre');
+  var zone=document.getElementById('arbre-upload-zone');
+  if(zone)zone.style.display=(cb&&cb.checked)?'none':'block';
+}
+// ─── 4 COMPOSANTES — HELPERS ────────────────────────────────────────────────
+function toggleAutre(selId,divId){
+  var sel=document.getElementById(selId);
+  var div=document.getElementById(divId);
+  if(!sel||!div)return;
+  div.style.display=(sel.value==='99'||sel.value==='99.00'||sel.value==='999')?'block':'none';
+}
+function toggleCasnote(cbId,noteId){
+  var cb=document.getElementById(cbId);
+  var note=document.getElementById(noteId);
+  if(note)note.style.display=(cb&&cb.checked)?'block':'none';
+}
+
+// ─── CLASSIFICATION AUTOMATIQUE (4 codes uniquement) ─────────────────────────
+function computeAutoClassif(){
+  var codeDev=(document.getElementById('codeDev')||{}).value||'';
+  var codeAgent=(document.getElementById('codeAgent')||{}).value||'';
+  var codeLesion=(document.getElementById('codeLesion')||{}).value||'';
+  var codeLoc=(document.getElementById('codeLoc')||{}).value||'';
+  if(!codeDev||!codeAgent||!codeLesion||!codeLoc)
+    return{value:'',hasDev:false,hasAgent:false,hasLesionQual:false,codeLesion:codeLesion};
+  var QUAL=[
+    '020','021','022','029',
+    '030','031','032','039',
+    '040','041',
+    '050','051','052','053','054','059',
+    '060','061','062','063','069',
+    '070','071','072','079',
+    '080','081','082','089',
+    '090','091','092','099',
+    '100','101','102','103','109',
+    '110','111','112','119',
+    '120','999'];
+  var hasDev=!!(codeDev&&codeDev!=='00');
+  var hasAgent=!!(codeAgent&&codeAgent!=='00.00'&&codeAgent!=='00.02'&&codeAgent!=='00.99');
+  var hasLesionQual=QUAL.indexOf(codeLesion)!==-1;
+  return{
+    value:((hasDev||hasAgent)&&hasLesionQual)?'grave':'declaration',
+    hasDev:hasDev,hasAgent:hasAgent,hasLesionQual:hasLesionQual,codeLesion:codeLesion
+  };
+}
+// ─── DÉLAIS LÉGAUX — ENCART DYNAMIQUE ───────────────────────────────────────
+function updateDelais(){
+  var box=document.getElementById('delais-box');
+  if(!box)return;
+  var sel=document.getElementById('typeAccidentSelect');
+  var type=sel?sel.value:'';
+  if(!type){box.style.display='none';return;}
+  box.style.display='block';
+  var h='<div class="db-title">Obligations légales</div>';
+  if(type==='benin'){
+    h+='<div class="delais-row"><span class="d-badge db-inf">INFO</span><span>Accident bénin (premiers soins) — pas de déclaration à l\'assurance. Consigner dans le <strong>registre des premiers secours</strong>.</span></div>';
+  }else if(type==='tres_grave'){
+    h+='<div class="delais-row"><span class="d-badge db-imm">IMMÉDIAT</span><span>Notifiez immédiatement votre service de prévention et votre assureur accident du travail.</span></div>';
+    h+='<div class="delais-row"><span class="d-badge db-imm">IMMÉDIAT</span><span><strong>Inspection du travail</strong> — Direction Contrôle du bien-être</span></div>';
+    h+='<div class="delais-row"><span class="d-badge db-8j">8 j.</span><span>Déclaration à l\'assurance accidents du travail</span></div>';
+    h+='<div class="delais-row"><span class="d-badge db-10j">10 j.</span><span>Rapport circonstancié au Contrôle du bien-être (CBE)</span></div>';
+  }else if(type==='grave'){
+    h+='<div class="delais-row"><span class="d-badge db-imm">IMMÉDIAT</span><span>Notifiez immédiatement votre service de prévention et votre assureur accident du travail.</span></div>';
+    h+='<div class="delais-row"><span class="d-badge db-8j">8 j.</span><span>Déclaration à l\'assurance accidents du travail</span></div>';
+    h+='<div class="delais-row"><span class="d-badge db-10j">10 j.</span><span>Rapport circonstancié au Contrôle du bien-être (CBE)</span></div>';
+    h+='<div class="delais-row" style="font-size:11px;color:#666;margin-top:2px"><span style="width:56px;flex-shrink:0"></span><span>Si rapport non satisfaisant dans 10 j., le SPF Emploi peut désigner un expert.</span></div>';
+  }else{
+    h+='<div class="delais-row"><span class="d-badge db-8j">8 j.</span><span>Déclaration à l\'assurance accidents du travail</span></div>';
+  }
+  box.innerHTML=h;
+}
+
+// ─── COMPTEUR J+10 ───────────────────────────────────────────────────────────
+function updateJ10Counter(){
+  var badge=document.getElementById('j10-counter');
+  if(!badge)return;
+  var sel=document.getElementById('typeAccidentSelect');
+  var type=sel?sel.value:'';
+  var needJ10=(type==='grave'||type==='tres_grave');
+  if(!needJ10){badge.style.display='none';badge.className='';return;}
+  var dateVal=(document.getElementById('dateAccident')||{}).value||'';
+  if(!dateVal){
+    badge.style.display='block';
+    badge.className='j10-warn';
+    badge.textContent='J+10 — Date accident manquante';
+    return;
+  }
+  var accident=new Date(dateVal);
+  var deadline=new Date(accident);
+  deadline.setDate(deadline.getDate()+10);
+  var today=new Date();today.setHours(0,0,0,0);
+  var diff=Math.round((deadline-today)/(1000*60*60*24));
+  badge.style.display='block';
+  if(diff>3){
+    badge.className='j10-ok';
+    badge.textContent='J+10 dans '+diff+' jour'+(diff>1?'s':'')+' — '+deadline.toLocaleDateString('fr-BE');
+  }else if(diff>0){
+    badge.className='j10-warn';
+    badge.textContent='⚠ J+10 dans '+diff+' jour'+(diff>1?'s':'')+' — '+deadline.toLocaleDateString('fr-BE');
+  }else if(diff===0){
+    badge.className='j10-danger';
+    badge.textContent='🔴 J+10 AUJOURD\'HUI — Rapport dû ce jour';
+  }else{
+    badge.className='j10-danger';
+    badge.textContent='🔴 J+10 DÉPASSÉ de '+Math.abs(diff)+' jour'+(Math.abs(diff)>1?'s':'')+' !';
+  }
+}
+
+// ─── VALIDATION AVANT EXPORT ─────────────────────────────────────────────────
+function validateReport(){
+  var errors=[];
+  function v(id){var el=document.getElementById(id);return el?el.value.trim():'';}
+  if(!v('dateRapport'))errors.push('Date de rédaction du rapport (Étape 1)');
+  if(!v('entreprise'))errors.push('Raison sociale de l\'entreprise (Étape 1)');
+  if(!v('vicNom'))errors.push('Nom de la victime (Étape 1)');
+  if(!v('dateAccident'))errors.push('Date de l\'accident (Étape 1)');
+  if(!v('dateDeclaration'))errors.push('Date de la déclaration (Étape 1)');
+  if(!v('lesion'))errors.push('Lésion / nature de la blessure (Étape 1)');
+  if(!v('faits'))errors.push('Description des faits (Étape 2)');
+  var hasCause=document.querySelector('#causes-p-list .cause-item input')
+    ||document.querySelector('#causes-s-list .cause-item input')
+    ||document.querySelector('#causes-t-list .cause-item input');
+  if(!hasCause)errors.push('Au moins une cause (primaire, secondaire ou tertiaire) — Étape 3');
+  var hasReco=document.querySelector('#reco-mat-list .reco-item')
+    ||document.querySelector('#reco-org-list .reco-item')
+    ||document.querySelector('#reco-gen-list .reco-item');
+  if(!hasReco)errors.push('Au moins une recommandation — Étape 4');
+  return errors;
+}
+function showValidationModal(errors,onForce){
+  var ov=document.createElement('div');ov.className='val-overlay';
+  var html='<div class="val-card">'
+    +'<div class="val-title">Rapport incomplet — '+errors.length+' champ'+(errors.length>1?'s':'')+(errors.length>1?' manquants':' manquant')+'</div>'
+    +'<div class="val-sub">Les champs suivants sont obligatoires pour un rapport conforme Art. II.3-37 :</div>'
+    +'<ul class="val-list">';
+  errors.forEach(function(e){html+='<li>'+e+'</li>';});
+  html+='</ul>'
+    +'<div class="val-btns">'
+    +'<button class="btn btn-w" id="val-close-btn">Corriger</button>'
+    +(onForce?'<button class="btn btn-o" id="val-force-btn">Exporter quand même</button>':'')
+    +'</div></div>';
+  ov.innerHTML=html;
+  document.body.appendChild(ov);
+  document.getElementById('val-close-btn').onclick=function(){document.body.removeChild(ov);};
+  if(onForce)document.getElementById('val-force-btn').onclick=function(){document.body.removeChild(ov);onForce();};
+}
+
+// ─── COUVERTURE CAUSES → RECOMMANDATIONS ─────────────────────────────────────
+function updateCausesCoverage(){
+  var box=document.getElementById('coverage-box');
+  if(!box)return;
+  var allCauses=[];
+  document.querySelectorAll('#causes-p-list .cause-item input').forEach(function(el,i){if(el.value.trim())allCauses.push({label:'Prim.'+(i+1)+' — '+el.value.trim(),type:'p'});});
+  document.querySelectorAll('#causes-s-list .cause-item input').forEach(function(el,i){if(el.value.trim())allCauses.push({label:'Sec.'+(i+1)+' — '+el.value.trim(),type:'s'});});
+  document.querySelectorAll('#causes-t-list .cause-item input').forEach(function(el,i){if(el.value.trim())allCauses.push({label:'Tert.'+(i+1)+' — '+el.value.trim(),type:'t'});});
+  document.querySelectorAll('#causes-q-list .cause-item input').forEach(function(el,i){if(el.value.trim())allCauses.push({label:'Psych.'+(i+1)+' — '+el.value.trim(),type:'q'});});
+  var allLiens=[];
+  document.querySelectorAll('.reco-lien').forEach(function(el){if(el.value.trim())allLiens.push(el.value.toLowerCase());});
+  if(!allCauses.length){
+    box.innerHTML='<div class="coverage-title">Couverture causes → mesures</div><div style="font-size:12px;color:#888;font-style:italic">Aucune cause encodée à l\'étape 3.</div>';
+    return;
+  }
+  var html='<div class="coverage-title">Couverture causes → mesures <span style="font-weight:400;color:#888">(chaque cause doit mener à une mesure)</span></div>';
+  var missing=0;
+  allCauses.forEach(function(c,i){
+    var covered=allLiens.some(function(l){
+      return l.indexOf(c.type+(i+1))!==-1||l.indexOf(c.label.toLowerCase().slice(0,10))!==-1;
+    });
+    html+='<div class="cov-row"><span class="'+(covered?'cov-ok':'cov-miss')+'">'+(covered?'✓':'✗')+'</span><span class="cov-label">'+c.label+'</span>'
+      +(covered?'':'<span style="font-size:11px;color:#dc2626">Sans mesure liée</span>')+'</div>';
+    if(!covered)missing++;
+  });
+  if(missing>0)html+='<div style="font-size:11px;color:#dc2626;margin-top:8px;font-style:italic">'+missing+' cause'+(missing>1?'s':'')+(missing>1?' ne sont':' n\'est')+' pas couverte'+(missing>1?'s':'')+' par une recommandation. Précisez le champ "Cause(s) adressée(s)" dans les recommandations ci-dessous.</div>';
+  else html+='<div style="font-size:11px;color:#16a34a;margin-top:8px">✓ Toutes les causes sont couvertes par au moins une recommandation.</div>';
+  box.innerHTML=html;
+}
+
+// ─── ENTRETIENS — PROGRESSION ────────────────────────────────────────────────
+function updateEntretiensProgress(){
+  var bar=document.getElementById('ent-progress');
+  if(!bar)return;
+  var ids=['ent-vic-fait','ent-tem-fait','ent-resp-fait','ent-lieu-fait','ent-docs-fait'];
+  var done=ids.filter(function(id){var el=document.getElementById(id);return el&&el.checked;}).length;
+  bar.textContent='Progression : '+done+' / '+ids.length+' étapes d\'investigation complétées';
+  bar.style.color=done===ids.length?'#16a34a':'#4A1B0C';
+}
+
+// ─── CLASSIFICATION ATG ──────────────────────────────────────────────────────
+function updateClassification(){
+  var box=document.getElementById('classification-result');
+  if(!box)return;
+  var auto=computeAutoClassif();
+  var sel=document.getElementById('typeAccidentSelect');
+  // Auto-fill si pas d'override manuel et valeur non saisie manuellement
+  if(!classifOverride&&auto.value&&(typeAccidentAutoSet||!sel||!sel.value)){
+    if(sel){sel.value=auto.value;typeAccidentAutoSet=true;}
+  }
+  var selVal=sel?sel.value:'';
+  if(!selVal){box.style.display='none';renderClassifWidget();updateDelais();updateJ10Counter();toggleBenin();return;}
+  box.style.display='block';
+  var niveau,couleur,fond,raison;
+  if(selVal==='benin'){
+    niveau='BÉNIN — premiers soins';couleur='#6B7280';fond='#F9FAFB';
+    raison='Accident bénin (premiers soins, arrêt &lt; 3 jours) — pas de déclaration à l\'assurance. Consigner dans le <strong>registre des premiers secours</strong>.';
+  }else if(selVal==='tres_grave'){
+    niveau='TRÈS GRAVE / MORTEL';couleur='#dc2626';fond='#fef2f2';
+    raison='Accident très grave ou mortel — notification <strong>immédiate</strong> de l\'inspection du travail (CBE) obligatoire (Art. II.3-38 CBET). Rapport circonstancié sous 10 jours.';
+  }else if(selVal==='grave'){
+    niveau='GRAVE';couleur='#D85A30';fond='#FEF3E7';
+    if(auto.value==='grave'){
+      var parts=[];
+      if(auto.hasDev)parts.push('déviation (Annexe 1)');
+      if(auto.hasAgent)parts.push('agent matériel (Annexe 2)');
+      raison=parts.length?'Critères ATG réunis : <strong>'+(parts.join(' + '))+' ET lésion qualifiante (Annexe 3)</strong> → rapport circonstancié obligatoire sous <strong>10 jours</strong> (Art. II.3-37 CBET).'
+        :'Accident grave qualifié — rapport circonstancié obligatoire sous <strong>10 jours</strong> (Art. II.3-37 CBET).';
+    }else{
+      raison='Accident grave (qualification manuelle) — rapport circonstancié obligatoire sous <strong>10 jours</strong> (Art. II.3-37 CBET).';
+    }
+  }else{
+    niveau='DÉCLARATION OBLIGATOIRE';couleur='#16a34a';fond='#f0fdf4';
+    if(!auto.value){
+      raison='Complétez les 4 codes FEDRIS pour affiner automatiquement la classification.';
+    }else if(!auto.hasLesionQual){
+      raison='Lésion encodée (<strong>'+auto.codeLesion+'</strong>) non qualifiante selon l\'Annexe II.3 CBET — lésions superficielles (011, 012, 019) exclues du critère ATG. Seule la déclaration à l\'assurance est obligatoire. <em>Si la lésion s\'avère permanente, requalifier en accident grave.</em>';
+    }else{
+      raison='Seule la déclaration à l\'assurance accidents du travail est obligatoire.';
+    }
+  }
+  box.style.borderLeftColor=couleur;
+  box.style.background=fond;
+  box.innerHTML='<div style="font-size:14px;font-weight:700;color:'+couleur+';margin-bottom:6px">Classification : '+niveau+'</div>'
+    +'<div style="font-size:12px;color:#2C2C2A;line-height:1.7">'+raison+'</div>'
+    +'<div style="margin-top:10px;padding:8px 10px;background:#F5F0EE;border-left:3px solid #D85A30;border-radius:0 4px 4px 0;font-size:11px;color:#5C4033;line-height:1.5"><strong>Note :</strong> Cette classification est indicative, basée sur les codes de lésion CBET Annexe II.3. Vérifiez toujours la qualification finale avec le texte officiel avant toute notification aux autorités.</div>';
+  renderClassifWidget();
+  updateDelais();
+  updateJ10Counter();
+  toggleBenin();
+}
+function renderClassifWidget(){
+  var sel=document.getElementById('typeAccidentSelect');
+  var lbl=document.getElementById('typeAccident-label');
+  var badge=document.getElementById('typeAccident-badge');
+  var bar=document.getElementById('typeAccident-justif-bar');
+  var preview=document.getElementById('typeAccident-justif-preview');
+  if(!lbl)return;
+  var selVal=sel?sel.value:'';
+  var labels={'':'—','benin':'Bénin','declaration':'Déclaration obligatoire','grave':'GRAVE','tres_grave':'TRÈS GRAVE / MORTEL'};
+  var colors={'benin':'#6B7280','declaration':'#16a34a','grave':'#D85A30','tres_grave':'#dc2626'};
+  lbl.textContent=labels[selVal]||selVal||'—';
+  lbl.style.color=colors[selVal]||'#2C2C2A';
+  if(classifOverride){
+    badge.className='classif-widget-badge classif-badge-manual';
+    badge.textContent='Modifié manuellement';
+    badge.style.display='block';
+    if(bar)bar.style.display='block';
+    if(preview)preview.textContent=classifOverride.justif||'';
+  }else if(selVal){
+    badge.className='classif-widget-badge classif-badge-auto';
+    badge.textContent='Calculé automatiquement';
+    badge.style.display='block';
+    if(bar)bar.style.display='none';
+  }else{
+    badge.style.display='none';
+    if(bar)bar.style.display='none';
+  }
+}
+function openClassifModal(){
+  var auto=computeAutoClassif();
+  var sel=document.getElementById('typeAccidentSelect');
+  var curVal=sel?sel.value:'';
+  var labels={'':'—','benin':'Bénin','declaration':'Déclaration obligatoire','grave':'GRAVE','tres_grave':'TRÈS GRAVE / MORTEL'};
+  var info=document.getElementById('modal-auto-info');
+  if(info){
+    info.textContent='Valeur actuellement affichée : '+(labels[curVal]||curVal||'—')
+      +(classifOverride?' (modifiée manuellement)':(auto.value?' (calculée automatiquement)':''));
+  }
+  var mSel=document.getElementById('modal-classif-sel');
+  if(mSel)mSel.value=curVal||auto.value||'declaration';
+  var mJustif=document.getElementById('modal-justif');
+  if(mJustif)mJustif.value=classifOverride?classifOverride.justif:'';
+  var mErr=document.getElementById('modal-err');
+  if(mErr)mErr.textContent='';
+  var mReset=document.getElementById('modal-reset-btn');
+  if(mReset)mReset.style.display=classifOverride?'block':'none';
+  var modal=document.getElementById('classif-modal');
+  if(modal)modal.classList.add('open');
+}
+function cancelClassifModal(){
+  var modal=document.getElementById('classif-modal');
+  if(modal)modal.classList.remove('open');
+}
+function confirmClassifModal(){
+  var mSel=document.getElementById('modal-classif-sel');
+  var mJustif=document.getElementById('modal-justif');
+  var mErr=document.getElementById('modal-err');
+  var newType=mSel?mSel.value:'';
+  var justif=mJustif?mJustif.value.trim():'';
+  if(!justif){if(mErr)mErr.textContent='La justification est obligatoire.';return;}
+  classifOverride={type:newType,justif:justif};
+  typeAccidentAutoSet=false;
+  var sel=document.getElementById('typeAccidentSelect');
+  if(sel)sel.value=newType;
+  updateClassification();
+  autosave();
+  var modal=document.getElementById('classif-modal');
+  if(modal)modal.classList.remove('open');
+}
+function resetClassifToAuto(){
+  classifOverride=null;
+  typeAccidentAutoSet=false;
+  var sel=document.getElementById('typeAccidentSelect');
+  if(sel)sel.value='';
+  updateClassification();
+  autosave();
+  var modal=document.getElementById('classif-modal');
+  if(modal)modal.classList.remove('open');
+}
+function toggleBenin(){
+  var sel=document.getElementById('typeAccidentSelect');
+  var isBenin=sel&&sel.value==='benin';
+  var card=document.getElementById('composantes-card');
+  var note=document.getElementById('benin-note');
+  if(card){
+    if(isBenin)card.classList.add('composante-optionnel');
+    else card.classList.remove('composante-optionnel');
+  }
+  if(note)note.style.display=isBenin?'block':'none';
+}
+
 // ─── AUTOSAVE ───────────────────────────────────────────────────────────────
 var saveTimer=null;
 function autosave(){
   clearTimeout(saveTimer);
   saveTimer=setTimeout(function(){
+    var now=new Date();
+    var ts=now.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
     try{
       localStorage.setItem('atg_nexum_v1',JSON.stringify(collectData()));
-      var now=new Date();
-      var ts=now.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
-      document.getElementById('hdr-save').textContent='Sauvegardé '+ts;
-      document.getElementById('save-global').textContent='✓ Sauvegardé '+ts;
-    }catch(e){}
+      var hdrOk=document.getElementById('hdr-save');
+      if(hdrOk){hdrOk.textContent='Sauvegardé '+ts;hdrOk.style.color='#86efac';}
+      var sgOk=document.getElementById('save-global');
+      if(sgOk){sgOk.textContent='✓ Sauvegardé '+ts;sgOk.style.color='';}
+    }catch(e){
+      // Quota dépassé — retry sans photos avec avertissement visible
+      try{
+        var lite=collectData();lite.photos=[];
+        localStorage.setItem('atg_nexum_v1',JSON.stringify(lite));
+        var hdrWarn=document.getElementById('hdr-save');
+        if(hdrWarn){hdrWarn.textContent='⚠ Photos non sauvegardées';hdrWarn.style.color='#EF9F27';}
+        var sgWarn=document.getElementById('save-global');
+        if(sgWarn){sgWarn.textContent='⚠ Sauvegarde partielle — photos exclues (quota dépassé)';sgWarn.style.color='#EF9F27';}
+        var w=document.getElementById('photo-warn');
+        if(w){w.style.display='block';w.textContent='⚠ Photos non sauvegardées automatiquement (espace localStorage insuffisant). Utilisez « Sauvegarder (JSON) » pour les conserver, ou réduisez le nombre de photos.';}
+      }catch(e2){
+        var hdrErr=document.getElementById('hdr-save');
+        if(hdrErr){hdrErr.textContent='⚠ Sauvegarde impossible';hdrErr.style.color='#dc2626';}
+        var sgErr=document.getElementById('save-global');
+        if(sgErr){sgErr.textContent='⚠ Sauvegarde impossible — exportez en JSON';sgErr.style.color='#dc2626';}
+      }
+    }
   },800);
 }
 
@@ -940,20 +2026,26 @@ function collectData(){
   });
   var redacteurs=[];
   document.querySelectorAll('#redacteurs-list .person-card').forEach(function(el){
-    redacteurs.push({nom:el.querySelector('.rd-nom').value,fonc:el.querySelector('.rd-fonc').value,email:el.querySelector('.rd-email').value});
+    redacteurs.push({nom:el.querySelector('.rd-nom').value,fonc:el.querySelector('.rd-fonc').value,email:el.querySelector('.rd-email').value,niveau:el.querySelector('.rd-niveau')?el.querySelector('.rd-niveau').value:''});
   });
   var causesP=[],causesS=[],causesT=[],causesQ=[];
   document.querySelectorAll('#causes-p-list .cause-item input').forEach(function(el){causesP.push(el.value)});
   document.querySelectorAll('#causes-s-list .cause-item input').forEach(function(el){causesS.push(el.value)});
   document.querySelectorAll('#causes-t-list .cause-item input').forEach(function(el){causesT.push(el.value)});
   document.querySelectorAll('#causes-q-list .cause-item input').forEach(function(el){causesQ.push(el.value)});
-  var recoImm=[],recoCT=[],recoMT=[],recoMat=[],recoOrg=[],recoGen=[];
-  document.querySelectorAll('#reco-imm-list textarea').forEach(function(el){recoImm.push(el.value)});
-  document.querySelectorAll('#reco-ct-list textarea').forEach(function(el){recoCT.push(el.value)});
-  document.querySelectorAll('#reco-mt-list textarea').forEach(function(el){recoMT.push(el.value)});
-  document.querySelectorAll('#reco-mat-list textarea').forEach(function(el){recoMat.push(el.value)});
-  document.querySelectorAll('#reco-org-list textarea').forEach(function(el){recoOrg.push(el.value)});
-  document.querySelectorAll('#reco-gen-list textarea').forEach(function(el){recoGen.push(el.value)});
+  var recoMat=[],recoOrg=[],recoGen=[];
+  function collectRecoList(listId,arr){
+    document.querySelectorAll('#'+listId+' .reco-item').forEach(function(el){
+      var ta=el.querySelector('.reco-text');
+      var li=el.querySelector('.reco-lien');
+      arr.push({text:ta?ta.value:'',lien:li?li.value:''});
+    });
+    // backward compat: bare textareas (old format before upgrade)
+    if(arr.length===0)document.querySelectorAll('#'+listId+' textarea').forEach(function(el){arr.push({text:el.value,lien:''});});
+  }
+  collectRecoList('reco-mat-list',recoMat);
+  collectRecoList('reco-org-list',recoOrg);
+  collectRecoList('reco-gen-list',recoGen);
   var pa=[];
   document.querySelectorAll('#pa-list .pa-row').forEach(function(el){
     var ins=el.querySelectorAll('input');
@@ -965,18 +2057,27 @@ function collectData(){
   });
   var auteurs=[];
   document.querySelectorAll('#auteur-list .person-card').forEach(function(el){
-    auteurs.push({nom:el.querySelector('.au-nom').value,fonc:el.querySelector('.au-fonc').value,email:el.querySelector('.au-email').value});
+    auteurs.push({nom:el.querySelector('.au-nom').value,fonc:el.querySelector('.au-fonc').value,email:el.querySelector('.au-email').value,niveau:el.querySelector('.au-niveau')?el.querySelector('.au-niveau').value:''});
   });
   var distribs=[];
   document.querySelectorAll('#distrib-list .person-card').forEach(function(el){
     distribs.push({nom:el.querySelector('.di-nom').value,fonc:el.querySelector('.di-fonc').value,org:el.querySelector('.di-org').value,adr:el.querySelector('.di-adr').value,email:el.querySelector('.di-email').value});
   });
 
+  var entretiens={
+    victime:{fait:c('ent-vic-fait'),date:v('ent-vic-date'),nom:v('ent-vic-nom')},
+    temoin:{fait:c('ent-tem-fait'),date:v('ent-tem-date'),nom:v('ent-tem-nom')},
+    responsable:{fait:c('ent-resp-fait'),date:v('ent-resp-date'),nom:v('ent-resp-nom')},
+    lieu:{fait:c('ent-lieu-fait'),date:v('ent-lieu-date')},
+    docs:{fait:c('ent-docs-fait'),note:v('ent-docs-note')}
+  };
+
   return{
     ville:v('ville'),dateRapport:v('dateRapport'),dateAnalyse:v('dateAnalyse'),
-    dateDeclaration:v('dateDeclaration'),typeAccident:v('typeAccident'),
+    dateDeclaration:v('dateDeclaration'),typeAccident:v('typeAccidentSelect'),classif:v('typeAccidentSelect'),
+    classifManuelle:!!classifOverride,classifOverrideType:classifOverride?classifOverride.type:'',classifJustification:classifOverride?classifOverride.justif:'',
     modeEnquete:v('modeEnquete'),refInterne:v('refInterne'),
-    entreprise:v('entreprise'),affiliation:v('affiliation'),
+    entreprise:v('entreprise'),secteurActivite:v('secteurActivite'),
     entRue:v('entRue'),entCP:v('entCP'),entVille:v('entVille'),
     nbTrav:v('nbTrav'),entUtil:v('entUtil'),
     entUtilRue:v('entUtilRue'),entUtilCP:v('entUtilCP'),entUtilVille:v('entUtilVille'),
@@ -987,23 +2088,30 @@ function collectData(){
     lesion:v('lesion'),incapacite:v('incapacite'),
     participants:participants,redacteurs:redacteurs,
     lieuAdresse:v('lieuAdresse'),lieuZone:v('lieuZone'),lieuDesc:v('lieuDesc'),
-    lieuPrive:c('lieuPrive'),photosDisponibles:c('photosDisponibles'),
-    photosDesc:v('photosDesc'),photosSource:v('photosSource'),
+    lieuPrive:c('lieuPrive'),photosDisponibles:c('photosDisponibles'),pasArbre:c('pasArbre'),
     faits:v('faits'),
     vd_anc:v('vd_anc'),vd_connait:v('vd_connait'),vd_precip:v('vd_precip'),
     vd_etat:v('vd_etat'),vd_temoin:v('vd_temoin'),vd_temoinNom:v('vd_temoinNom'),
-    vd_epi:v('vd_epi'),vd_epiDetail:v('vd_epiDetail'),vd_arda:v('vd_arda'),
+    vd_epi:v('vd_epi'),vd_epiDetail:v('vd_epiDetail'),vd_arda:v('vd_arda'),vd_arda_ref:v('vd_arda_ref'),
     vd_proc:v('vd_proc'),vd_suite:v('vd_suite'),vd_autres:v('vd_autres'),
     emp_nom:v('emp_nom'),emp_contrat:v('emp_contrat'),emp_premier:v('emp_premier'),
     emp_surcharge:v('emp_surcharge'),emp_orga:v('emp_orga'),emp_rel:v('emp_rel'),
     emp_secu:v('emp_secu'),emp_fiche:v('emp_fiche'),emp_autres:v('emp_autres'),
+    codeDev:v('codeDev'),codeDevAutreVal:v('codeDevAutre-val'),
+    codeAgent:v('codeAgent'),codeAgentAutreVal:v('codeAgentAutre-val'),
+    codeLesion:v('codeLesion'),codeLesionAutreVal:v('codeLesionAutre-val'),
+    codeLoc:v('codeLoc'),codeLocAutreVal:v('codeLocAutre-val'),
+    casElectrique:c('casElectrique'),casBiologique:c('casBiologique'),
+    casRadiations:c('casRadiations'),casAscenseur:c('casAscenseur'),
+    casInterimaire:c('casInterimaire'),casSousTraitant:c('casSousTraitant'),
     causesP:causesP,causesS:causesS,causesT:causesT,causesQ:causesQ,
-    recoImm:recoImm,recoCT:recoCT,recoMT:recoMT,
     recoMat:recoMat,recoOrg:recoOrg,recoGen:recoGen,pa:pa,
-    atcNodes:atcState.nodes,atcLinks:atcState.links,
+    entretiens:entretiens,
+    atcNodes:atcState.nodes,atcLinks:atcState.links,atcUploadedImg:atcUploadedImg,
     collabs:collabs,auteurs:auteurs,
     seNom:v('seNom'),seAdresse:v('seAdresse'),seTel:v('seTel'),seSite:v('seSite'),seEmail:v('seEmail'),
-    distribs:distribs
+    distribs:distribs,
+    photos:atgPhotos.map(function(p){return{data:p.data,w:p.w,h:p.h,titre:p.titre||'',commentaire:p.commentaire||''};})
   };
 }
 
@@ -1012,9 +2120,21 @@ function restoreData(d){
   function s(id,val){var el=document.getElementById(id);if(el&&val!==undefined)el.value=val;}
   function sc(id,val){var el=document.getElementById(id);if(el)el.checked=!!val;}
   s('ville',d.ville);s('dateRapport',d.dateRapport);s('dateAnalyse',d.dateAnalyse);
-  s('dateDeclaration',d.dateDeclaration);s('typeAccident',d.typeAccident);
+  s('dateDeclaration',d.dateDeclaration);
+  var taVal=d.typeAccident||'';
+  if(taVal==='arret'||taVal==='chemin')taVal='declaration';
+  else if(taVal==='mortel')taVal='tres_grave';
+  else if(taVal==='bénin')taVal='benin';
+  else if(d.premiersSoins&&!taVal)taVal='benin';
+  else if(d.accidentMortel&&!taVal)taVal='tres_grave';
+  if(taVal&&['benin','declaration','grave','tres_grave'].indexOf(taVal)!==-1){
+    s('typeAccidentSelect',taVal);typeAccidentAutoSet=false;
+  }
+  if(d.classifManuelle&&d.classifOverrideType){
+    classifOverride={type:d.classifOverrideType,justif:d.classifJustification||''};
+  }else{classifOverride=null;}
   s('modeEnquete',d.modeEnquete);s('refInterne',d.refInterne);
-  s('entreprise',d.entreprise);s('affiliation',d.affiliation);
+  s('entreprise',d.entreprise);s('secteurActivite',d.secteurActivite);
   s('entRue',d.entRue);s('entCP',d.entCP);s('entVille',d.entVille);
   s('nbTrav',d.nbTrav);s('entUtil',d.entUtil);
   s('entUtilRue',d.entUtilRue);s('entUtilCP',d.entUtilCP);s('entUtilVille',d.entUtilVille);
@@ -1024,18 +2144,38 @@ function restoreData(d){
   s('vicAge',d.vicAge);s('vicAnciennete',d.vicAnciennete);s('vicContrat',d.vicContrat);
   s('dateAccident',d.dateAccident);s('heureAccident',d.heureAccident);
   s('lesion',d.lesion);s('incapacite',d.incapacite);
+  s('codeDev',d.codeDev);s('codeDevAutre-val',d.codeDevAutreVal);
+  if(d.codeDev==='99')document.getElementById('codeDevAutre').style.display='block';
+  s('codeAgent',d.codeAgent);s('codeAgentAutre-val',d.codeAgentAutreVal);
+  if(d.codeAgent==='99.00')document.getElementById('codeAgentAutre').style.display='block';
+  s('codeLesion',d.codeLesion);s('codeLesionAutre-val',d.codeLesionAutreVal);
+  if(d.codeLesion==='999')document.getElementById('codeLesionAutre').style.display='block';
+  s('codeLoc',d.codeLoc);s('codeLocAutre-val',d.codeLocAutreVal);
+  if(d.codeLoc==='99')document.getElementById('codeLocAutre').style.display='block';
+  sc('casElectrique',d.casElectrique);if(d.casElectrique)toggleCasnote('casElectrique','note-elec');
+  sc('casBiologique',d.casBiologique);if(d.casBiologique)toggleCasnote('casBiologique','note-bio');
+  sc('casRadiations',d.casRadiations);if(d.casRadiations)toggleCasnote('casRadiations','note-rad');
+  sc('casAscenseur',d.casAscenseur);if(d.casAscenseur)toggleCasnote('casAscenseur','note-asc');
+  sc('casInterimaire',d.casInterimaire);if(d.casInterimaire)toggleCasnote('casInterimaire','note-int');
+  sc('casSousTraitant',d.casSousTraitant);if(d.casSousTraitant)toggleCasnote('casSousTraitant','note-st');
+  updateDelais();
+  updateClassification();
 
   (d.participants||[]).forEach(function(p){addParticipant();var last=document.querySelectorAll('#participants-list .person-card');var el=last[last.length-1];el.querySelector('.pc-nom').value=p.nom||'';el.querySelector('.pc-fonc').value=p.fonc||'';el.querySelector('.pc-org').value=p.org||'';});
-  (d.redacteurs||[]).forEach(function(p){addRedacteur();var last=document.querySelectorAll('#redacteurs-list .person-card');var el=last[last.length-1];el.querySelector('.rd-nom').value=p.nom||'';el.querySelector('.rd-fonc').value=p.fonc||'';el.querySelector('.rd-email').value=p.email||'';});
+  (d.redacteurs||[]).forEach(function(p){addRedacteur();var last=document.querySelectorAll('#redacteurs-list .person-card');var el=last[last.length-1];el.querySelector('.rd-nom').value=p.nom||'';el.querySelector('.rd-fonc').value=p.fonc||'';el.querySelector('.rd-email').value=p.email||'';if(el.querySelector('.rd-niveau'))el.querySelector('.rd-niveau').value=p.niveau||'';});
 
   s('lieuAdresse',d.lieuAdresse);s('lieuZone',d.lieuZone);s('lieuDesc',d.lieuDesc);
   sc('lieuPrive',d.lieuPrive);sc('photosDisponibles',d.photosDisponibles);
   if(d.photosDisponibles)document.getElementById('photos-block').style.display='block';
-  s('photosDesc',d.photosDesc);s('photosSource',d.photosSource);
+  sc('pasArbre',d.pasArbre);if(d.pasArbre)toggleArbreUpload();
+  if(d.photos&&Array.isArray(d.photos)&&d.photos.length){
+    atgPhotos=d.photos.map(function(p){return{data:p.data||'',w:p.w||0,h:p.h||0,titre:p.titre||p.caption||'',commentaire:p.commentaire||''};});
+    photosRender();
+  }
   s('faits',d.faits);
   s('vd_anc',d.vd_anc);s('vd_connait',d.vd_connait);s('vd_precip',d.vd_precip);
-  s('vd_etat',d.vd_etat);s('vd_temoin',d.vd_temoin);s('vd_temoinNom',d.vd_temoinNom);
-  s('vd_epi',d.vd_epi);s('vd_epiDetail',d.vd_epiDetail);s('vd_arda',d.vd_arda);
+  s('vd_etat',d.vd_etat);s('vd_temoin',d.vd_temoin);toggleTemoinNom();s('vd_temoinNom',d.vd_temoinNom);
+  s('vd_epi',d.vd_epi);s('vd_epiDetail',d.vd_epiDetail);s('vd_arda',d.vd_arda);s('vd_arda_ref',d.vd_arda_ref);toggleArdaRef();
   s('vd_proc',d.vd_proc);s('vd_suite',d.vd_suite);s('vd_autres',d.vd_autres);
   s('emp_nom',d.emp_nom);s('emp_contrat',d.emp_contrat);s('emp_premier',d.emp_premier);
   s('emp_surcharge',d.emp_surcharge);s('emp_orga',d.emp_orga);s('emp_rel',d.emp_rel);
@@ -1045,17 +2185,41 @@ function restoreData(d){
   (d.causesS||[]).forEach(function(c){addCause('s');var last=document.querySelectorAll('#causes-s-list .cause-item input');last[last.length-1].value=c;});
   (d.causesT||[]).forEach(function(c){addCause('t');var last=document.querySelectorAll('#causes-t-list .cause-item input');last[last.length-1].value=c;});
   (d.causesQ||[]).forEach(function(c){addCause('q');var last=document.querySelectorAll('#causes-q-list .cause-item input');last[last.length-1].value=c;});
-  (d.recoImm||[]).forEach(function(r){addReco('imm');var last=document.querySelectorAll('#reco-imm-list textarea');last[last.length-1].value=r;});
-  (d.recoCT||[]).forEach(function(r){addReco('ct');var last=document.querySelectorAll('#reco-ct-list textarea');last[last.length-1].value=r;});
-  (d.recoMT||[]).forEach(function(r){addReco('mt');var last=document.querySelectorAll('#reco-mt-list textarea');last[last.length-1].value=r;});
-  (d.recoMat||[]).forEach(function(r){addReco('mat');var last=document.querySelectorAll('#reco-mat-list textarea');last[last.length-1].value=r;});
-  (d.recoOrg||[]).forEach(function(r){addReco('org');var last=document.querySelectorAll('#reco-org-list textarea');last[last.length-1].value=r;});
-  (d.recoGen||[]).forEach(function(r){addReco('gen');var last=document.querySelectorAll('#reco-gen-list textarea');last[last.length-1].value=r;});
+  function restoreRecoList(dataArr,type){
+    (dataArr||[]).forEach(function(r){
+      addReco(type);
+      var items=document.querySelectorAll('#reco-'+type+'-list .reco-item');
+      var el=items[items.length-1];
+      if(!el)return;
+      var text=typeof r==='string'?r:(r.text||'');
+      var lien=typeof r==='string'?'':(r.lien||'');
+      var ta=el.querySelector('.reco-text');
+      var li=el.querySelector('.reco-lien');
+      if(ta)ta.value=text;
+      if(li)li.value=lien;
+    });
+  }
+  restoreRecoList(d.recoMat,'mat');
+  restoreRecoList(d.recoOrg,'org');
+  restoreRecoList(d.recoGen,'gen');
+  // Entretiens
+  if(d.entretiens){
+    var en=d.entretiens;
+    function sce(id,val){var el=document.getElementById(id);if(el&&val!==undefined)el.checked=!!val;}
+    function sve(id,val){var el=document.getElementById(id);if(el&&val!==undefined)el.value=val||'';}
+    sce('ent-vic-fait',en.victime&&en.victime.fait);sve('ent-vic-date',en.victime&&en.victime.date);sve('ent-vic-nom',en.victime&&en.victime.nom);
+    sce('ent-tem-fait',en.temoin&&en.temoin.fait);sve('ent-tem-date',en.temoin&&en.temoin.date);sve('ent-tem-nom',en.temoin&&en.temoin.nom);
+    sce('ent-resp-fait',en.responsable&&en.responsable.fait);sve('ent-resp-date',en.responsable&&en.responsable.date);sve('ent-resp-nom',en.responsable&&en.responsable.nom);
+    sce('ent-lieu-fait',en.lieu&&en.lieu.fait);sve('ent-lieu-date',en.lieu&&en.lieu.date);
+    sce('ent-docs-fait',en.docs&&en.docs.fait);sve('ent-docs-note',en.docs&&en.docs.note);
+    updateEntretiensProgress();
+  }
   if(d.atcNodes&&d.atcNodes.length){atcState.nodes=d.atcNodes;atcState.links=d.atcLinks||[];atcBuildInputs();atcRender();}
-  (d.pa||[]).forEach(function(p){addPA();var last=document.querySelectorAll('#pa-list .pa-row');var ins=last[last.length-1].querySelectorAll('input');ins[0].value=p.action||'';ins[1].value=p.resp||'';ins[2].value=p.delai||'';});
+  if(d.atcUploadedImg){atcUploadedImg=d.atcUploadedImg;var pi=document.getElementById('atc-upload-preview');var ii=document.getElementById('atc-upload-img');var ni=document.getElementById('atc-upload-name');var cb=document.getElementById('atc-clear-upload-btn');if(pi){pi.style.display='block';}if(ii){ii.src=atcUploadedImg.dataURL;}if(ni){ni.textContent='Image chargée';}if(cb){cb.style.display='inline-block';}}
+  if(document.getElementById('pa-list'))(d.pa||[]).forEach(function(p){addPA();var last=document.querySelectorAll('#pa-list .pa-row');var ins=last[last.length-1].querySelectorAll('input');ins[0].value=p.action||'';ins[1].value=p.resp||'';ins[2].value=p.delai||'';});
 
   (d.collabs||[]).forEach(function(p){addCollab();var last=document.querySelectorAll('#collab-list .person-card');var el=last[last.length-1];el.querySelector('.pc-nom').value=p.nom||'';el.querySelector('.pc-fonc').value=p.fonc||'';el.querySelector('.pc-org').value=p.org||'';});
-  (d.auteurs||[]).forEach(function(p){addAuteur();var last=document.querySelectorAll('#auteur-list .person-card');var el=last[last.length-1];el.querySelector('.au-nom').value=p.nom||'';el.querySelector('.au-fonc').value=p.fonc||'';el.querySelector('.au-email').value=p.email||'';});
+  (d.auteurs||[]).forEach(function(p){addAuteur();var last=document.querySelectorAll('#auteur-list .person-card');var el=last[last.length-1];el.querySelector('.au-nom').value=p.nom||'';el.querySelector('.au-fonc').value=p.fonc||'';el.querySelector('.au-email').value=p.email||'';if(el.querySelector('.au-niveau'))el.querySelector('.au-niveau').value=p.niveau||'';});
 
   s('seNom',d.seNom);s('seAdresse',d.seAdresse);s('seTel',d.seTel);s('seSite',d.seSite);s('seEmail',d.seEmail);
   (d.distribs||[]).forEach(function(p){addDistrib();var last=document.querySelectorAll('#distrib-list .person-card');var el=last[last.length-1];el.querySelector('.di-nom').value=p.nom||'';el.querySelector('.di-fonc').value=p.fonc||'';el.querySelector('.di-org').value=p.org||'';el.querySelector('.di-adr').value=p.adr||'';el.querySelector('.di-email').value=p.email||'';});
@@ -1076,6 +2240,11 @@ function getSelText(id){
 
 // ─── APERÇU HTML ────────────────────────────────────────────────────────────
 function buildPreview(){
+  var errs=validateReport();
+  if(errs.length){showValidationModal(errs,function(){doBuildPreview();});return;}
+  doBuildPreview();
+}
+function doBuildPreview(){
   var d=collectData();
   var victime=d.vicNom+(d.vicPrenom?' '+d.vicPrenom:'');
   var html='';
@@ -1086,15 +2255,14 @@ function buildPreview(){
   html+='<tr><td style="font-weight:700;width:160px;vertical-align:top">OBJET</td><td>: Analyse « Accident du travail grave »<br>Victime&nbsp;&nbsp; : '+victime+'<br>Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : '+fmtDate(d.dateAccident)+'</td></tr>';
   html+='<tr><td style="font-weight:700;vertical-align:top">ENTREPRISE</td><td>: '+d.entreprise+'<br>'+d.entRue+'<br>'+d.entCP+' '+d.entVille+'</td></tr>';
   if(d.entUtil)html+='<tr><td style="font-weight:700;vertical-align:top">ENTREPRISE UTILISATRICE</td><td>: '+d.entUtil+'<br>'+d.entUtilRue+' '+d.entUtilCP+' '+d.entUtilVille+'</td></tr>';
-  html+='<tr><td style="font-weight:700">N° AFFILIATION</td><td>: '+d.affiliation+'</td></tr>';
   html+='<tr><td style="font-weight:700">ANALYSE</td><td>: '+d.dateAnalyse+'</td></tr>';
   if(d.participants.length){html+='<tr><td style="font-weight:700;vertical-align:top">PARTICIPANTS</td><td>: ';html+=d.participants.map(function(p){return p.nom+(p.fonc?' ('+p.fonc+')':'')+(p.org?', '+p.org:'')}).join('<br>');html+='</td></tr>';}
-  if(d.redacteurs.length){html+='<tr><td style="font-weight:700;vertical-align:top">RAPPORT RÉDIGÉ PAR</td><td>: ';html+=d.redacteurs.map(function(p){return p.nom+(p.fonc?' ('+p.fonc+')':'')}).join('<br>');html+='</td></tr>';}
+  if(d.redacteurs.length){html+='<tr><td style="font-weight:700;vertical-align:top">RAPPORT RÉDIGÉ PAR</td><td>: ';html+=d.redacteurs.map(function(p){return p.nom+(p.fonc?' ('+p.fonc+')'+(p.niveau?' — CP Niveau '+p.niveau:''):'')}).join('<br>');html+='</td></tr>';}
   html+='</tbody></table>';
 
   html+='<h2>1. Introduction</h2>';
   html+='<p>Conformément à la réglementation en vigueur concernant les accidents du travail, nous avons effectué une analyse détaillée de l\'accident du travail survenu le '+fmtDate(d.dateAccident)+' et dont la déclaration nous est parvenue le '+fmtDate(d.dateDeclaration)+'.</p>';
-  var modeText={'tel':'Ce rapport a été rédigé sur base des informations collectées lors des entretiens téléphoniques','visite':'Ce rapport a été rédigé sur base des informations collectées lors de la visite en entreprise','mixte':'Ce rapport a été rédigé sur base des informations collectées lors de la visite en entreprise et par entretiens téléphoniques'};
+  var modeText={'tel':'Ce rapport a été rédigé sur base des informations collectées lors des entretiens téléphoniques','visite':'Ce rapport a été rédigé sur base des informations collectées lors de la visite sur les lieux de l\'accident','mixte':'Ce rapport a été rédigé sur base des informations collectées lors de la visite sur les lieux de l\'accident et par entretiens téléphoniques'};
   html+='<p>'+((modeText[d.modeEnquete])||'Ce rapport a été rédigé sur base des informations collectées')+' du '+d.dateAnalyse+', auprès des personnes qui ont participé à cette enquête.</p>';
 
   html+='<h2>2. Identification de la victime et de l\'employeur</h2>';
@@ -1102,6 +2270,18 @@ function buildPreview(){
   html+='<p>'+victime+'<br>'+d.vicRue+'<br>'+d.vicCP+' '+d.vicVille+'</p>';
   html+='<p><strong>Âge</strong> : '+d.vicAge+' ans<br><strong>Ancienneté</strong> : '+d.vicAnciennete+'</p>';
   html+='<p><strong>Lésion</strong> : '+d.lesion+'<br><strong>Incapacité</strong> : '+d.incapacite+'</p>';
+  if(d.codeDev||d.codeAgent||d.codeLesion||d.codeLoc){
+    html+='<h3>Encodage statistique — 4 composantes :</h3>';
+    html+='<table style="font-size:12px;line-height:1.8;border-collapse:collapse">';
+    if(d.codeDev)html+='<tr><td style="width:230px;color:#888;padding-right:10px">Déviation (Tableau A)</td><td>'+d.codeDev+(d.codeDevAutreVal?' — '+d.codeDevAutreVal:'')+'</td></tr>';
+    if(d.codeAgent)html+='<tr><td style="color:#888">Agent matériel (Tableau B)</td><td>'+d.codeAgent+(d.codeAgentAutreVal?' — '+d.codeAgentAutreVal:'')+'</td></tr>';
+    if(d.codeLesion)html+='<tr><td style="color:#888">Nature de la lésion (Tableau E)</td><td>'+d.codeLesion+(d.codeLesionAutreVal?' — '+d.codeLesionAutreVal:'')+'</td></tr>';
+    if(d.codeLoc)html+='<tr><td style="color:#888">Localisation (Tableau F)</td><td>'+d.codeLoc+(d.codeLocAutreVal?' — '+d.codeLocAutreVal:'')+'</td></tr>';
+    html+='</table>';
+    var clabels={'benin':'Bénin','declaration':'Déclaration obligatoire','grave':'GRAVE — rapport circonstancié requis (Art. II.3-37 CBET)','tres_grave':'TRÈS GRAVE / MORTEL (Art. II.3-38 CBET)'};
+    if(d.classif&&clabels[d.classif])html+='<p style="margin-top:6px"><strong>Classification légale : </strong>'+clabels[d.classif]+'</p>'
+      +'<p style="margin-top:4px;padding:6px 8px;background:#F5F0EE;border-left:3px solid #D85A30;font-size:10px;color:#5C4033;line-height:1.5"><em>Note : Cette classification est indicative, basée sur les codes de lésion CBET Annexe II.3. Vérifiez toujours la qualification finale avec le texte officiel avant toute notification aux autorités.</em></p>';
+  }
   html+='<h3>Employeur :</h3>';
   html+='<p>'+d.entreprise+'<br>'+d.entRue+'<br>'+d.entCP+' '+d.entVille+'</p>';
   if(d.entUtil)html+='<h3>Entreprise utilisatrice :</h3><p>'+d.entUtil+'<br>'+d.entUtilRue+' '+d.entUtilCP+' '+d.entUtilVille+'</p>';
@@ -1115,9 +2295,17 @@ function buildPreview(){
   html+='<h2>4. Description détaillée des circonstances de l\'accident</h2>';
   html+='<h3>Les faits :</h3><p>'+d.faits.replace(/\n/g,'<br>')+'</p>';
   html+='<h3>Les photos :</h3>';
-  if(d.photosDisponibles){
+  if(atgPhotos.length>0){
+    atgPhotos.forEach(function(p,i){
+      html+='<div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">';
+      html+='<img src="'+p.data+'" style="width:150px;height:100px;object-fit:cover;border-radius:4px;border:1px solid #E0D8D4;flex-shrink:0" alt="Photo '+(i+1)+'">';
+      html+='<div>';
+      if(p.titre)html+='<div style="font-weight:700;font-size:12px;margin-bottom:3px">'+p.titre+'</div>';
+      if(p.commentaire)html+='<div style="font-size:12px;color:#555;line-height:1.5">'+p.commentaire+'</div>';
+      html+='</div></div>';
+    });
+  }else if(d.photosDisponibles&&d.photosDesc){
     html+='<p>'+d.photosDesc.replace(/\n/g,'<br>')+'</p>';
-    if(d.photosSource)html+='<p><em>Photo(s) fournie(s) par '+d.photosSource+'.</em></p>';
   }else{html+='<p>Aucune photo disponible.</p>';}
 
   html+='<h3>Éléments complémentaires :</h3>';
@@ -1133,9 +2321,8 @@ function buildPreview(){
   if(d.dateAccident&&d.heureAccident)html+='<li>L\'accident a eu lieu le '+fmtDate(d.dateAccident)+' à '+d.heureAccident.replace(':','h')+'.</li>';
   var temoinMap={'non':'Il n\'y a pas de témoin.','oui':'Un ou plusieurs témoins étaient présents'+(d.vd_temoinNom?' : '+d.vd_temoinNom:'.')+'.','indirect':'La clientèle était présente mais n\'a pas été un témoin direct.'};
   if(d.vd_temoin&&temoinMap[d.vd_temoin])html+='<li>'+temoinMap[d.vd_temoin]+'</li>';
-  var epiMap={'oui_portes':'Les Équipements de Protection Individuelle (EPI) étaient disponibles et portés au moment de l\'accident'+(d.vd_epiDetail?' : '+d.vd_epiDetail:'.')+'.','dispo_non':'Les EPI étaient disponibles mais non portés au moment de l\'accident.','non_dispo':'Les EPI n\'étaient pas disponibles au moment de l\'accident.'};
-  if(d.vd_epi&&epiMap[d.vd_epi])html+='<li>'+epiMap[d.vd_epi]+'</li>';
-  var ardaMap={'non':'L\'analyse des risques n\'a pas été effectuée pour ce type de travail.','oui':'Une analyse des risques a été effectuée pour ce type de travail.'};
+  if(d.vd_epi){var epiTxt={'oui_portes':'Les Équipements de Protection Individuelle (EPI) requis étaient disponibles et portés au moment de l\'accident','dispo_non':'Les EPI étaient disponibles mais non portés au moment de l\'accident','non_dispo':'Les EPI requis n\'étaient pas disponibles / n\'avaient pas été fournis','na':'Aucun EPI requis pour cette tâche'};var etxt=epiTxt[d.vd_epi]||'';if(d.vd_epiDetail)etxt+=' ('+d.vd_epiDetail+')';if(etxt)html+='<li>'+etxt+'.</li>';}
+  var ardaMap={'non':'Aucune analyse des risques n\'existe pour ce poste ou ce type de travail.','partiel':'Une analyse des risques globale existe mais aucune fiche par poste de travail n\'est disponible pour cette situation.','oui':'Une analyse des risques globale ET par poste de travail existe pour ce poste'+(d.vd_arda_ref?' ('+d.vd_arda_ref+')':'')+'.'};
   if(d.vd_arda&&ardaMap[d.vd_arda])html+='<li>'+ardaMap[d.vd_arda]+'</li>';
   var procMap={'oui':'Il existe une procédure écrite pour ce type de travail.','non':'Il n\'existe pas de procédure écrite pour ce type de travail.','partiel':'Il existe un plan partiel peu détaillé pour ce type de travail.'};
   if(d.vd_proc&&procMap[d.vd_proc])html+='<li>'+procMap[d.vd_proc]+'</li>';
@@ -1178,19 +2365,22 @@ function buildPreview(){
   else html+='<li>/</li>';
   html+='</ul>';
 
+  function recoText(r){return typeof r==='string'?r:(r&&r.text?r.text:'');}
+  function recoLien(r){return typeof r==='string'?'':(r&&r.lien?r.lien:'');}
+  function recoLi(r){var t=recoText(r);if(!t)return'';var l=recoLien(r);return'<li>'+t+(l?'<em style="color:#888;font-size:11px"> — Cause : '+l+'</em>':'')+'</li>';}
   html+='<h2>6. Recommandations visant à prévenir la répétition de l\'accident</h2>';
   html+='<h3>Recommandations matérielles</h3><ul>';
-  if(d.recoMat.length)d.recoMat.forEach(function(r){if(r)html+='<li>'+r+'</li>'});
-  else html+='<li>/</li>';
+  var visMatPrev=d.recoMat.filter(function(r){return recoText(r);});
+  if(visMatPrev.length)visMatPrev.forEach(function(r){html+=recoLi(r)});else html+='<li>/</li>';
   html+='</ul>';
   html+='<h3>Recommandations organisationnelles</h3><ul>';
-  if(d.recoOrg.length)d.recoOrg.forEach(function(r){if(r)html+='<li>'+r+'</li>'});
-  else html+='<li>/</li>';
+  var visOrgPrev=d.recoOrg.filter(function(r){return recoText(r);});
+  if(visOrgPrev.length)visOrgPrev.forEach(function(r){html+=recoLi(r)});else html+='<li>/</li>';
   html+='</ul>';
   html+='<h3>Recommandations générales (Analyse des risques)</h3><ul>';
-  html+='<li>Nous vous recommandons de réaliser une analyse des risques professionnels pour chacun des postes de travail en tenant compte des différentes étapes des opérations. Cette démarche constitue l\'étape clé d\'une démarche de prévention efficace. Elle comporte quatre phases : préparation de l\'évaluation ; identification des risques ; classement des facteurs de risques ; propositions de mesures de prévention. Les mesures seront ensuite intégrées dans le plan global de prévention et le plan annuel d\'actions. <em>(Code du Bien-Être, Livre I, Titre 2)</em></li>';
-  html+='<li>Mettre à jour votre plan global de prévention et le plan annuel d\'action.</li>';
-  if(d.recoGen.length)d.recoGen.forEach(function(r){if(r)html+='<li>'+r+'</li>'});
+  html+='<li>Il est recommandé de réaliser une analyse des risques professionnels pour chacun des postes de travail concernés, en tenant compte des différentes étapes des opérations. Cette démarche permet d\'identifier, de hiérarchiser et de maîtriser les risques auxquels les travailleurs sont exposés. Elle comporte quatre phases : préparation de l\'évaluation ; identification des risques ; classement des facteurs de risques ; propositions de mesures de prévention. Les mesures seront ensuite intégrées dans le plan global de prévention et le plan annuel d\'actions. <em>(Code du Bien-Être, Livre I, Titre 2)</em></li>';
+  html+='<li>Mettre à jour le plan global de prévention et le plan annuel d\'action.</li>';
+  if(d.recoGen.length)d.recoGen.forEach(function(r){if(recoText(r))html+=recoLi(r)});
   html+='</ul>';
 
   html+='<h2>7. Identification des personnes qui ont collaboré à l\'analyse</h2><ul>';
@@ -1198,7 +2388,7 @@ function buildPreview(){
   html+='</ul>';
 
   html+='<h2>8. Identification de la personne qui a élaboré ce rapport</h2>';
-  d.auteurs.forEach(function(p){html+='<p>'+p.nom+(p.fonc?', '+p.fonc:'')+(p.email?'<br>'+p.email:'')+'</p>'});
+  d.auteurs.forEach(function(p){html+='<p>'+p.nom+(p.niveau?' — CP Niveau '+p.niveau:'')+(p.fonc?', '+p.fonc:'')+(p.email?'<br>'+p.email:'')+'</p>'});
   html+='<p>'+d.seNom+(d.seAdresse?'<br>'+d.seAdresse:'')+(d.seTel?'<br>Tél. : '+d.seTel:'')+(d.seSite?'<br>'+d.seSite:'')+'</p>';
 
   html+='<h2>9. Identification des personnes à qui une copie de ce rapport a été envoyée</h2>';
@@ -1214,6 +2404,15 @@ function buildPreview(){
 // ─── EXPORT WORD ─────────────────────────────────────────────────────────────
 async function exportWord(){
   if(typeof docx==='undefined'){alert('Bibliothèque docx non chargée. Vérifiez votre connexion Internet.');return;}
+  var errs=validateReport();
+  if(errs.length){
+    showValidationModal(errs,function(){doExportWord();});
+    return;
+  }
+  doExportWord();
+}
+async function doExportWord(){
+  if(typeof docx==='undefined')return;
   var atcImg=await new Promise(function(res){atcGetImageDataURL(res);});
   var d=collectData();
   var victime=d.vicNom+(d.vicPrenom?' '+d.vicPrenom:'');
@@ -1232,8 +2431,8 @@ async function exportWord(){
   var precipMap={'non':'La victime ne travaillait pas dans la précipitation.','oui':'La victime travaillait dans la précipitation.'};
   var etatMap={'normal':'La victime semblait dans son état normal, n\'était pas sous influence d\'alcool ou de médicaments.','alcool':'La victime était sous influence d\'alcool.','medicaments':'La victime était sous influence de médicaments.'};
   var temoinMap={'non':'Il n\'y a pas de témoin.','oui':'Témoin(s) présent(s)'+(d.vd_temoinNom?' : '+d.vd_temoinNom:'.')+'.',indirect:'La clientèle était présente mais n\'a pas été un témoin direct.'};
-  var epiMap={'oui_portes':'Les Équipements de Protection Individuelle (EPI) étaient disponibles et portés au moment de l\'accident'+(d.vd_epiDetail?' : '+d.vd_epiDetail:'.')+'.','dispo_non':'Les EPI étaient disponibles mais non portés.','non_dispo':'Les EPI n\'étaient pas disponibles.'};
-  var ardaMap={'non':'L\'analyse des risques n\'a pas été effectuée pour ce type de travail.','oui':'Une analyse des risques a été effectuée pour ce type de travail.'};
+  var epiMap={'oui_portes':'Les EPI requis étaient disponibles et portés au moment de l\'accident'+(d.vd_epiDetail?' ('+d.vd_epiDetail+')'+'.'  :'.'), 'dispo_non':'Les EPI étaient disponibles mais non portés au moment de l\'accident'+(d.vd_epiDetail?' ('+d.vd_epiDetail+')':'')+'.' ,'non_dispo':'Les EPI requis n\'étaient pas disponibles / n\'avaient pas été fournis'+(d.vd_epiDetail?' ('+d.vd_epiDetail+')':'')+'.' ,'na':'Aucun EPI requis pour cette tâche.'};
+  var ardaMap={'non':'Aucune analyse des risques n\'existe pour ce poste ou ce type de travail.','partiel':'Une analyse des risques globale existe mais aucune fiche par poste de travail n\'est disponible pour cette situation.','oui':'Une analyse des risques globale ET par poste de travail existe pour ce poste'+(d.vd_arda_ref?' ('+d.vd_arda_ref+')':'')+'.'};
   var procMap={'oui':'Il existe une procédure écrite pour ce type de travail.','non':'Il n\'existe pas de procédure écrite pour ce type de travail.','partiel':'Il existe un plan partiel peu détaillé.'};
   var contratMap={'cdi':'La victime est en CDI.','cdd':'La victime est en CDD.','int':'La victime est en contrat intérimaire.','ale':'La victime est sous contrat ALE/Titres-services.'};
   var premMap={'oui':'C\'est la première fois que ce type d\'accident intervient au sein de l\'entreprise.','non':'Ce type d\'accident s\'est déjà produit.'};
@@ -1259,16 +2458,15 @@ async function exportWord(){
   children.push(para([txt('        Date     :  '+fmtDate(d.dateAccident))],{spacing:{after:200}}));
   covRow('ENTREPRISE',d.entreprise+'\n'+d.entRue+'\n'+d.entCP+' '+d.entVille);
   if(d.entUtil)covRow('ENTREPRISE UTILISATRICE',d.entUtil+'\n'+d.entUtilRue+' '+d.entUtilCP+' '+d.entUtilVille);
-  covRow('N° AFFILIATION',d.affiliation);
   covRow('ANALYSE',d.dateAnalyse);
   if(d.participants.length)covRow('PARTICIPANTS',d.participants.map(function(p){return p.nom+(p.fonc?' ('+p.fonc+')':'')+(p.org?', '+p.org:'')}).join('\n        '));
-  if(d.redacteurs.length)covRow('RAPPORT RÉDIGÉ PAR',d.redacteurs.map(function(p){return p.nom+(p.fonc?' ('+p.fonc+')':'')}).join('\n        '));
+  if(d.redacteurs.length)covRow('RAPPORT RÉDIGÉ PAR',d.redacteurs.map(function(p){return p.nom+(p.fonc?' ('+p.fonc+')'+(p.niveau?' — CP Niveau '+p.niveau:''):'')}).join('\n        '));
   children.push(sp());children.push(sp());
 
   // Section 1
   children.push(h1('1.  Introduction'));
   children.push(para([txt('Conformément à la réglementation en vigueur concernant les accidents du travail, nous avons effectué une analyse détaillée de l\'accident du travail survenu le '+fmtDate(d.dateAccident)+' et dont la déclaration nous est parvenue le '+fmtDate(d.dateDeclaration)+'.')],{spacing:{after:80}}));
-  var modeText2={'tel':'Ce rapport a été rédigé sur base des informations collectées lors des entretiens téléphoniques','visite':'Ce rapport a été rédigé sur base des informations collectées lors de la visite en entreprise','mixte':'Ce rapport a été rédigé sur base des informations collectées lors de la visite en entreprise et par entretiens téléphoniques'};
+  var modeText2={'tel':'Ce rapport a été rédigé sur base des informations collectées lors des entretiens téléphoniques','visite':'Ce rapport a été rédigé sur base des informations collectées lors de la visite sur les lieux de l\'accident','mixte':'Ce rapport a été rédigé sur base des informations collectées lors de la visite sur les lieux de l\'accident et par entretiens téléphoniques'};
   children.push(para([txt(((modeText2[d.modeEnquete])||'Ce rapport a été rédigé sur base des informations collectées')+' du '+d.dateAnalyse+', auprès des personnes qui ont participé à cette enquête.')],{spacing:{after:200}}));
 
   // Section 2
@@ -1280,7 +2478,18 @@ async function exportWord(){
   children.push(para([bold('Âge'),txt(' : '+d.vicAge+' ans')],{}));
   children.push(para([bold('Ancienneté'),txt(' : '+d.vicAnciennete)],{spacing:{after:80}}));
   children.push(para([bold('Lésion'),txt(' : '+d.lesion)],{}));
-  children.push(para([bold('Incapacité'),txt(' : '+d.incapacite)],{spacing:{after:160}}));
+  children.push(para([bold('Incapacité'),txt(' : '+d.incapacite)],{spacing:{after:80}}));
+  if(d.codeDev||d.codeAgent||d.codeLesion||d.codeLoc){
+    children.push(h2('Encodage statistique — 4 composantes (Annexe II CBET)'));
+    if(d.codeDev)children.push(para([bold('Déviation (Tableau A) : '),txt(d.codeDev+(d.codeDevAutreVal?' — '+d.codeDevAutreVal:''))],{spacing:{after:40}}));
+    if(d.codeAgent)children.push(para([bold('Agent matériel (Tableau B) : '),txt(d.codeAgent+(d.codeAgentAutreVal?' — '+d.codeAgentAutreVal:''))],{spacing:{after:40}}));
+    if(d.codeLesion)children.push(para([bold('Nature de la lésion (Tableau E) : '),txt(d.codeLesion+(d.codeLesionAutreVal?' — '+d.codeLesionAutreVal:''))],{spacing:{after:40}}));
+    if(d.codeLoc)children.push(para([bold('Localisation (Tableau F) : '),txt(d.codeLoc+(d.codeLocAutreVal?' — '+d.codeLocAutreVal:''))],{spacing:{after:40}}));
+    var wclabels={'benin':'Bénin','declaration':'Déclaration obligatoire','grave':'GRAVE — rapport circonstancié requis (Art. II.3-37 CBET)','tres_grave':'TRÈS GRAVE / MORTEL (Art. II.3-38 CBET)'};
+    if(d.classif&&wclabels[d.classif])children.push(para([bold('Classification légale : '),txt(wclabels[d.classif])],{spacing:{after:60}}));
+    if(d.classif&&wclabels[d.classif])children.push(para([new R({text:'Note : Cette classification est indicative, basée sur les codes de lésion CBET Annexe II.3. Vérifiez toujours la qualification finale avec le texte officiel avant toute notification aux autorités.',italics:true,size:18,color:'5C4033'})],{spacing:{after:120}}));
+    if(d.classifManuelle&&d.classifJustification)children.push(para([bold('Justification de la modification manuelle : '),new R({text:d.classifJustification,italics:true,size:18,color:'7C3310'})],{spacing:{after:120}}));
+  }
   children.push(para([bold('Employeur :')],{spacing:{after:60}}));
   children.push(para([txt(d.entreprise)],{}));
   children.push(para([txt(d.entRue)],{}));
@@ -1305,9 +2514,20 @@ async function exportWord(){
   faitsLines.forEach(function(line){children.push(para([txt(line)],{spacing:{after:60}}))});
   children.push(sp());
   children.push(h2('Les photos :'));
-  if(d.photosDisponibles){
+  if(atgPhotos.length>0){
+    atgPhotos.forEach(function(p){
+      try{
+        var b64=p.data.replace(/^data:image\/\w+;base64,/,'');
+        var bin=atob(b64);var bytes=new Uint8Array(bin.length);
+        for(var bi=0;bi<bin.length;bi++)bytes[bi]=bin.charCodeAt(bi);
+        var maxW=420,iw=Math.min(maxW,p.w||maxW),ih=Math.round(iw*(p.h||iw)/Math.max(p.w||1,1));
+        children.push(new P({children:[new docx.ImageRun({data:bytes,transformation:{width:iw,height:ih}})],spacing:{after:40}}));
+        if(p.titre)children.push(para([bold(p.titre)],{spacing:{after:20}}));
+        if(p.commentaire)children.push(para([new R({text:p.commentaire,italics:true,size:20,color:'555555'})],{spacing:{after:100}}));
+      }catch(imgErr){children.push(para([txt('(Image non disponible)')],{spacing:{after:80}}));}
+    });
+  }else if(d.photosDisponibles&&d.photosDesc){
     d.photosDesc.split('\n').forEach(function(line){if(line)children.push(para([txt(line)],{spacing:{after:60}}))});
-    if(d.photosSource)children.push(para([new R({text:'Photo(s) fournie(s) par '+d.photosSource+'.',italics:true})],{spacing:{after:100}}));
   }else{
     children.push(para([new R({text:'Aucune photo disponible.',italics:true})],{spacing:{after:100}}));
   }
@@ -1355,22 +2575,29 @@ async function exportWord(){
   else children.push(bul('/'));
   children.push(sp());
 
+  function wRecoText(r){return typeof r==='string'?r:(r&&r.text?r.text:'');}
+  function wRecoLien(r){return typeof r==='string'?'':(r&&r.lien?r.lien:'');}
+  function wRecoBul(r){
+    var t=wRecoText(r);if(!t)return;
+    var l=wRecoLien(r);
+    children.push(bul(t+(l?' [Cause : '+l+']':'')));
+  }
   // Section 6
   children.push(h1('6.  Recommandations visant à prévenir la répétition de l\'accident'));
   children.push(h2('Recommandations matérielles'));
-  if(d.recoMat.length&&d.recoMat[0])d.recoMat.forEach(function(r){if(r)children.push(bul(r))});
-  else children.push(bul('/'));
+  var visMat=d.recoMat.filter(function(r){return wRecoText(r);});
+  if(visMat.length)visMat.forEach(wRecoBul);else children.push(bul('/'));
   children.push(h2('Recommandations organisationnelles'));
-  if(d.recoOrg.length&&d.recoOrg[0])d.recoOrg.forEach(function(r){if(r)children.push(bul(r))});
-  else children.push(bul('/'));
+  var visOrg=d.recoOrg.filter(function(r){return wRecoText(r);});
+  if(visOrg.length)visOrg.forEach(wRecoBul);else children.push(bul('/'));
   children.push(h2('Recommandations générales (Analyse des risques)'));
-  children.push(bul('Nous vous recommandons de réaliser une analyse des risques professionnels pour chacun des postes de travail en tenant compte des différentes étapes des opérations. Cette démarche constitue l\'étape clé d\'une démarche de prévention efficace. Destinée à mieux connaître et à mieux maîtriser les risques encourus par vos travailleurs, elle vous permettra de disposer des éléments adaptés à la prise de mesures de prévention. Cette analyse comporte quatre phases successives :'));
+  children.push(bul('Il est recommandé de réaliser une analyse des risques professionnels pour chacun des postes de travail concernés, en tenant compte des différentes étapes des opérations. Cette démarche permet d\'identifier, de hiérarchiser et de maîtriser les risques auxquels les travailleurs sont exposés. Cette analyse comporte quatre phases successives :'));
   children.push(new P({text:'Préparation de l\'évaluation ;',bullet:{level:1}}));
   children.push(new P({text:'Identification des risques ;',bullet:{level:1}}));
   children.push(new P({text:'Classement des facteurs de risques ;',bullet:{level:1}}));
   children.push(new P({text:'Propositions de mesures de prévention. Les mesures de prévention à mettre en place seront ensuite intégrées dans le plan global de prévention et dans le plan annuel d\'actions. (Code du Bien-Être, Livre I, Titre 2)',bullet:{level:1}}));
-  children.push(bul('Mettre à jour votre plan global de prévention et le plan annuel d\'action.'));
-  if(d.recoGen.length&&d.recoGen[0])d.recoGen.forEach(function(r){if(r)children.push(bul(r))});
+  children.push(bul('Mettre à jour le plan global de prévention et le plan annuel d\'action.'));
+  d.recoGen.forEach(function(r){wRecoBul(r);});
   children.push(sp());
 
   // Section 7
@@ -1381,7 +2608,7 @@ async function exportWord(){
   // Section 8
   children.push(h1('8.  Identification de la personne qui a élaboré ce rapport'));
   d.auteurs.forEach(function(p){
-    children.push(para([txt(p.nom+(p.fonc?', '+p.fonc:''))],{spacing:{after:40}}));
+    children.push(para([txt(p.nom+(p.niveau?' — CP Niveau '+p.niveau:'')+(p.fonc?', '+p.fonc:''))],{spacing:{after:40}}));
     if(p.email)children.push(para([new R({text:p.email,color:'1A5276'})],{spacing:{after:80}}));
   });
   children.push(para([txt(d.seNom)],{spacing:{after:40}}));
@@ -1399,8 +2626,8 @@ async function exportWord(){
     if(p.email)children.push(para([txt('E-mail : '),new R({text:p.email,color:'1A5276'})],{spacing:{after:80}}));
   });
 
-  // Annexe : Arbre des causes (image SVG → PNG)
-  if(atcImg){
+  // Annexe : Arbre des causes
+  if(!d.pasArbre&&atcImg){
     children.push(sp());
     children.push(h1('Annexe — Arbre des causes (Méthode INRS)'));
     try{
@@ -1467,6 +2694,11 @@ function loadJSON(e){
   r.readAsText(f);
   e.target.value='';
 }
+function nouvelleAnalyse(){
+  if(!confirm('Démarrer une nouvelle analyse ?\nToutes les données en cours seront effacées (champs, photos, arbre des causes, codes FEDRIS…).'))return;
+  localStorage.removeItem('atg_nexum_v1');
+  location.reload();
+}
 function clearAll(){
   if(!confirm('Effacer toutes les données de ce rapport ? Cette action est irréversible.'))return;
   localStorage.removeItem('atg_nexum_v1');
@@ -1479,8 +2711,20 @@ document.querySelectorAll('input,select,textarea').forEach(function(el){
   el.addEventListener('change',autosave);
 });
 
+// ─── LISTENERS SPÉCIAUX ──────────────────────────────────────────────────────
+var dateAccEl=document.getElementById('dateAccident');
+if(dateAccEl){dateAccEl.addEventListener('change',function(){updateJ10Counter();autosave();});}
+
 // ─── RESTORE ON LOAD ─────────────────────────────────────────────────────────
 (function(){
+  // Déplacer composantes + triage + checklist vers l'étape 1, dans l'ordre
+  var panel1=document.getElementById('panel1');
+  var brow1=panel1?panel1.querySelector('.brow'):null;
+  var compCard=document.getElementById('composantes-card');
+  var checkCard=document.getElementById('entretiens-card');
+  if(compCard&&brow1)panel1.insertBefore(compCard,brow1);
+  if(checkCard&&brow1)panel1.insertBefore(checkCard,brow1);
+
   var stored=localStorage.getItem('atg_nexum_v1');
   if(stored){
     try{var d=JSON.parse(stored);restoreData(d);}catch(e){}
@@ -1488,6 +2732,10 @@ document.querySelectorAll('input,select,textarea').forEach(function(el){
   // Set today as default report date if empty
   var dr=document.getElementById('dateRapport');
   if(dr&&!dr.value){var today=new Date();dr.value=today.toISOString().split('T')[0];}
+  updateDelais();
+  updateClassification();
+  updateJ10Counter();
+  updateEntretiensProgress();
 })();
 </script>
 
@@ -1727,6 +2975,7 @@ function atcExportPNG(){
 }
 
 function atcGetImageDataURL(callback){
+  if(atcUploadedImg){callback(atcUploadedImg);return;}
   var svgEl=document.getElementById('atc-svg');
   if(!svgEl||!atcState.nodes.length){callback(null);return;}
   var clone=svgEl.cloneNode(true);
@@ -1847,58 +3096,6 @@ function atcGetImageDataURL(callback){
   });
 }());
 
-// ─── ANALYSE IA — appel via Netlify Function ─────────────────────────────────
-async function aiGenerate(){
-  var statusEl=document.getElementById('ai-status');
-  var faits=(document.getElementById('faits').value||'').trim();
-  if(!faits||faits.length<20){
-    statusEl.style.color='#dc2626';statusEl.textContent='⚠ Rédigez d\'abord les faits de l\'accident (min. 20 caractères).';return;
-  }
-  var btn=document.getElementById('btn-ai-gen');
-  btn.disabled=true;statusEl.style.color='#D85A30';statusEl.textContent='⏳ Analyse en cours…';
-  try{
-    var d=collectData();
-    var sysPrompt='Tu es un conseiller en prévention niveau 1 belge expert en analyse d\'accidents du travail selon la méthode arbre des causes (INRS). Analyse les faits et identifie les causes selon les 4 niveaux (primaires/secondaires/tertiaires/quaternaires). Propose des mesures de prévention concrètes avec références légales CBET. Réponds UNIQUEMENT en JSON valide avec exactement ces clés : causes_primaires, causes_secondaires, causes_tertiaires, causes_quaternaires, recommandations_immediates, recommandations_court_terme, recommandations_moyen_terme. Chaque valeur est un tableau de chaînes.';
-    var userMsg='Analyse d\'accident du travail\n\nVictime : '+(d.vicNom||'')+(d.vicPrenom?' '+d.vicPrenom:'')+', '+(d.vicFonction||'')+'\nEntreprise : '+(d.entreprise||'')+'\nDate : '+(d.dateAccident||'')+'\n\nFaits :\n'+faits;
-    var resp=await fetch('/.netlify/functions/claude',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:4096,
-        system:sysPrompt,
-        messages:[{role:'user',content:userMsg}]
-      })
-    });
-    if(!resp.ok){var errTxt=await resp.text();throw new Error('HTTP '+resp.status+' — '+errTxt.slice(0,120));}
-    var data=await resp.json();
-    if(data.error)throw new Error(data.error.message||JSON.stringify(data.error));
-    var text=(data.content&&data.content[0])?data.content[0].text:'';
-    var jsonMatch=text.match(/\{[\s\S]*\}/);
-    if(!jsonMatch)throw new Error('La réponse IA ne contient pas de JSON valide');
-    var res=JSON.parse(jsonMatch[0]);
-    aiApplyResults(res);
-    statusEl.style.color='#16a34a';statusEl.textContent='✓ Analyse terminée — étapes 3 et 4 pré-remplies.';
-  }catch(e){
-    statusEl.style.color='#dc2626';statusEl.textContent='✗ Erreur : '+e.message;
-  }finally{btn.disabled=false;}
-}
-
-function aiApplyResults(res){
-  ['p','s','t','q'].forEach(function(t){var el=document.getElementById('causes-'+t+'-list');if(el)el.innerHTML='';});
-  ['imm','ct','mt'].forEach(function(t){var el=document.getElementById('reco-'+t+'-list');if(el)el.innerHTML='';});
-  function fill(arr,fn){(arr||[]).forEach(function(v){if(v&&v.trim())fn(v.trim());});}
-  fill(res.causes_primaires,function(c){addCause('p');var l=document.querySelectorAll('#causes-p-list .cause-item input');if(l.length)l[l.length-1].value=c;});
-  fill(res.causes_secondaires,function(c){addCause('s');var l=document.querySelectorAll('#causes-s-list .cause-item input');if(l.length)l[l.length-1].value=c;});
-  fill(res.causes_tertiaires,function(c){addCause('t');var l=document.querySelectorAll('#causes-t-list .cause-item input');if(l.length)l[l.length-1].value=c;});
-  fill(res.causes_quaternaires,function(c){addCause('q');var l=document.querySelectorAll('#causes-q-list .cause-item input');if(l.length)l[l.length-1].value=c;});
-  fill(res.recommandations_immediates,function(r){addReco('imm');var l=document.querySelectorAll('#reco-imm-list textarea');if(l.length)l[l.length-1].value=r;});
-  fill(res.recommandations_court_terme,function(r){addReco('ct');var l=document.querySelectorAll('#reco-ct-list textarea');if(l.length)l[l.length-1].value=r;});
-  fill(res.recommandations_moyen_terme,function(r){addReco('mt');var l=document.querySelectorAll('#reco-mt-list textarea');if(l.length)l[l.length-1].value=r;});
-  autosave();
-  setTimeout(function(){goStep(3);},700);
-}
-
 </script>
 <!-- Nexum Advisory — Protection nxDecode -->
 <style>
@@ -1969,5 +3166,28 @@ function aiApplyResults(res){
   };
 })();
 </script>
+
+<div id="classif-modal">
+  <div class="modal-box">
+    <div class="modal-title">Modification manuelle de la classification</div>
+    <div class="modal-info" id="modal-auto-info"></div>
+    <label class="ml">Nouvelle classification</label>
+    <select id="modal-classif-sel">
+      <option value="benin">Bénin</option>
+      <option value="declaration">Déclaration obligatoire</option>
+      <option value="grave">Grave</option>
+      <option value="tres_grave">Très grave / Mortel</option>
+    </select>
+    <label class="ml">Justification écrite <span style="color:#D85A30">*</span> <span style="font-weight:400;font-style:italic">(obligatoire — sera reprise dans l'export Word)</span></label>
+    <textarea id="modal-justif" rows="4" placeholder="Ex. : Lésion confirmée bénigne après examen médical du 12/06/2025 — pas de critère ATG réuni selon le médecin traitant…"></textarea>
+    <div class="modal-err" id="modal-err"></div>
+    <div class="modal-btns">
+      <button class="btn-reset" id="modal-reset-btn" onclick="resetClassifToAuto()">&#8635; Revenir au calcul automatique</button>
+      <button class="btn-cancel" onclick="cancelClassifModal()">Annuler</button>
+      <button class="btn-confirm" onclick="confirmClassifModal()">Confirmer la modification</button>
+    </div>
+    <div class="modal-footer">La modification manuelle et sa justification sont tracées dans l'export Word.</div>
+  </div>
+</div>
 </body>
 </html>
